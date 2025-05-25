@@ -4,8 +4,9 @@ import os
 
 app = Flask(__name__)
 
-USERS_CSV_PATH = "../dataset/users.csv"
-DEVS_CSV_PATH = "../dataset/developers.csv"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
+DEVS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/developers.csv")
 
 @app.route('/')
 def index():
