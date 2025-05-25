@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Registo Developer</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <h1 class="logo">💻 Criar Conta de Developer</h1>
+        <div class="login-box">
+            <h2>Registo</h2>
+            <form action="/developer-register" method="POST">
+                <div class="input-group">
+                    <input type="text" name="username" placeholder="Novo username" required>
+                    <span class="icon">👤</span>
+                </div>
+                <div class="input-group">
+                    <input type="password" name="password" placeholder="Nova password" required>
+                    <span class="icon">🔒</span>
+                </div>
+                <button type="submit" class="login-btn">Criar Conta</button>
+                <p class="register-link">Já és developer? <a href="/developer-login">Faz login</a></p>
+            </form>
+        </div>
+    </div>
+</body>
+</html>
