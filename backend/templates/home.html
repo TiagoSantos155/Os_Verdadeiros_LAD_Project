@@ -3,18 +3,59 @@
 <head>
     <meta charset="UTF-8">
     <title>Home | Plataforma</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
 </head>
 <body>
-    <div class="page-wrapper">
-        <div class="logo">Plataforma</div>
-        <div class="login-box">
-            <h2>Bem-vindo, {{ username }}!</h2>
-            <p>Entraste com sucesso na plataforma.</p>
-            <form action="{{ url_for('logout') }}" method="post">
-                <button class="login-btn" type="submit">Logout</button>
+    <header class="steam-header">
+        <div class="steam-logo">Plataforma</div>
+        <nav class="steam-nav">
+            <a href="#">Loja</a>
+            <a href="#">Biblioteca</a>
+            <a href="#">Comunidade</a>
+            <a href="#">Perfil</a>
+            <form action="{{ url_for('logout') }}" method="post" class="logout-form">
+                <button class="logout-btn" type="submit">Logout</button>
             </form>
-        </div>
-    </div>
+        </nav>
+        <div class="steam-user">Bem-vindo, {{ username }}!</div>
+    </header>
+    <main class="steam-main">
+        <section class="steam-banner">
+            <img src="{{ url_for('static', filename='banner.jpg') }}" alt="Banner principal" class="banner-img">
+            <div class="banner-info">
+                <h1>Descobre os melhores jogos!</h1>
+                <p>Explora novidades, promoções e muito mais.</p>
+            </div>
+        </section>
+        <section class="steam-featured">
+            <h2>Destaques</h2>
+            <div class="featured-games">
+                <div class="game-card">
+                    <img src="{{ url_for('static', filename='game1.jpg') }}" alt="Jogo 1">
+                    <div class="game-title">Jogo 1</div>
+                </div>
+                <div class="game-card">
+                    <img src="{{ url_for('static', filename='game2.jpg') }}" alt="Jogo 2">
+                    <div class="game-title">Jogo 2</div>
+                </div>
+                <div class="game-card">
+                    <img src="{{ url_for('static', filename='game3.jpg') }}" alt="Jogo 3">
+                    <div class="game-title">Jogo 3</div>
+                </div>
+                <!-- ...podes adicionar mais jogos aqui... -->
+            </div>
+        </section>
+        <section class="steam-news">
+            <h2>Novidades</h2>
+            <ul>
+                <li><strong>Promoção de Verão:</strong> Grandes descontos em centenas de jogos!</li>
+                <li><strong>Novo lançamento:</strong> Jogo 4 já disponível!</li>
+                <li><strong>Atualização:</strong> Melhorias na plataforma e novos recursos.</li>
+            </ul>
+        </section>
+    </main>
+    <footer class="steam-footer">
+        &copy; A tua plataforma de recomendações.
+    </footer>
 </body>
 </html>

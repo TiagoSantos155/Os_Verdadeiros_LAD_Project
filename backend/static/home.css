@@ -1,0 +1,175 @@
+body {
+    margin: 0;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #1b2838;
+    color: #c7d5e0;
+}
+
+.steam-header {
+    background: #171a21;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 40px;
+    height: 70px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.4);
+}
+
+.steam-logo {
+    font-size: 2rem;
+    font-weight: bold;
+    color: #66c0f4;
+    letter-spacing: 2px;
+}
+
+.steam-nav {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
+
+.steam-nav a {
+    color: #c7d5e0;
+    text-decoration: none;
+    font-size: 1.1rem;
+    padding: 8px 12px;
+    border-radius: 4px;
+    transition: background 0.2s;
+}
+
+.steam-nav a:hover {
+    background: #2a475e;
+}
+
+.logout-form {
+    display: inline;
+    margin-left: 20px;
+}
+
+.logout-btn {
+    background: #66c0f4;
+    color: #171a21;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.logout-btn:hover {
+    background: #417a9b;
+}
+
+.steam-user {
+    font-size: 1rem;
+    color: #fff;
+    margin-left: 20px;
+}
+
+.steam-main {
+    max-width: 1200px;
+    margin: 30px auto 0 auto;
+    padding: 0 20px;
+}
+
+.steam-banner {
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    margin-bottom: 40px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.5);
+}
+
+.banner-img {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    display: block;
+}
+
+.banner-info {
+    position: absolute;
+    left: 40px;
+    bottom: 30px;
+    color: #fff;
+    background: rgba(27,40,56,0.8);
+    padding: 20px 30px;
+    border-radius: 8px;
+}
+
+.steam-featured {
+    margin-bottom: 40px;
+}
+
+.steam-featured h2 {
+    color: #66c0f4;
+    margin-bottom: 20px;
+}
+
+.featured-games {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
+}
+
+.game-card {
+    background: #232f3e;
+    border-radius: 8px;
+    overflow: hidden;
+    width: 220px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+    transition: transform 0.2s;
+    cursor: pointer;
+}
+
+.game-card:hover {
+    transform: scale(1.04);
+    box-shadow: 0 4px 24px rgba(102,192,244,0.2);
+}
+
+.game-card img {
+    width: 100%;
+    height: 120px;
+    object-fit: cover;
+    display: block;
+}
+
+.game-title {
+    padding: 12px;
+    font-size: 1.1rem;
+    color: #fff;
+    text-align: center;
+}
+
+.steam-news {
+    margin-bottom: 40px;
+}
+
+.steam-news h2 {
+    color: #66c0f4;
+    margin-bottom: 15px;
+}
+
+.steam-news ul {
+    list-style: none;
+    padding: 0;
+}
+
+.steam-news li {
+    background: #232f3e;
+    margin-bottom: 10px;
+    padding: 12px 18px;
+    border-radius: 6px;
+    color: #c7d5e0;
+}
+
+.steam-footer {
+    background: #171a21;
+    color: #66c0f4;
+    text-align: center;
+    padding: 18px 0;
+    margin-top: 40px;
+    font-size: 1rem;
+    letter-spacing: 1px;
+}
