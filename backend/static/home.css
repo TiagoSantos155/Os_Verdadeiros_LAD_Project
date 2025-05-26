@@ -121,6 +121,10 @@ body {
     box-shadow: 0 2px 12px rgba(0,0,0,0.3);
     transition: transform 0.2s;
     cursor: pointer;
+    min-height: 320px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
 }
 
 .game-card:hover {
@@ -140,6 +144,30 @@ body {
     font-size: 1.1rem;
     color: #fff;
     text-align: center;
+}
+
+.game-desc {
+    color: #c7d5e0;
+    font-size: 0.95rem;
+    padding: 0 12px 12px 12px;
+    flex: 1;
+}
+
+.add-library-btn {
+    background: #5c7e10;
+    color: #fff;
+    border: none;
+    padding: 8px 0;
+    border-radius: 0 0 8px 8px;
+    font-weight: bold;
+    cursor: pointer;
+    width: 100%;
+    transition: background 0.2s;
+    font-size: 1rem;
+}
+
+.add-library-btn:hover {
+    background: #8bc53f;
 }
 
 .steam-news {
@@ -162,6 +190,21 @@ body {
     padding: 12px 18px;
     border-radius: 6px;
     color: #c7d5e0;
+}
+
+.steam-recommendations {
+    margin-bottom: 40px;
+}
+
+.steam-recommendations h2 {
+    color: #66c0f4;
+    margin-bottom: 20px;
+}
+
+.recommended-games {
+    display: flex;
+    gap: 30px;
+    flex-wrap: wrap;
 }
 
 .steam-footer {

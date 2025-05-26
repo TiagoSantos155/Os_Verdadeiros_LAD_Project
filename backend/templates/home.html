@@ -23,26 +23,21 @@
         <section class="steam-banner">
             <img src="{{ url_for('static', filename='banner.jpg') }}" alt="Banner principal" class="banner-img">
             <div class="banner-info">
-                <h1>Descobre os melhores jogos!</h1>
-                <p>Explora novidades, promoções e muito mais.</p>
+                <h1>As tuas recomendações de jogos</h1>
+                <p>Jogos escolhidos especialmente para ti com base nas tuas preferências!</p>
             </div>
         </section>
-        <section class="steam-featured">
-            <h2>Destaques</h2>
-            <div class="featured-games">
+        <section class="steam-recommendations">
+            <h2>Recomendações para ti</h2>
+            <div class="recommended-games">
+                {% for game in recommended_games %}
                 <div class="game-card">
-                    <img src="{{ url_for('static', filename='game1.jpg') }}" alt="Jogo 1">
-                    <div class="game-title">Jogo 1</div>
+                    <img src="{{ url_for('static', filename=game.image) }}" alt="{{ game.title }}">
+                    <div class="game-title">{{ game.title }}</div>
+                    <div class="game-desc">{{ game.description }}</div>
+                    <button class="add-library-btn">Adicionar à Biblioteca</button>
                 </div>
-                <div class="game-card">
-                    <img src="{{ url_for('static', filename='game2.jpg') }}" alt="Jogo 2">
-                    <div class="game-title">Jogo 2</div>
-                </div>
-                <div class="game-card">
-                    <img src="{{ url_for('static', filename='game3.jpg') }}" alt="Jogo 3">
-                    <div class="game-title">Jogo 3</div>
-                </div>
-                <!-- ...podes adicionar mais jogos aqui... -->
+                {% endfor %}
             </div>
         </section>
         <section class="steam-news">
