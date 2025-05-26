@@ -9,25 +9,24 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
 DEVS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/developers.csv")
 
-@app.route('/')
+@app.route('/', methods=['GET', 'POST'])
 def index():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+
+        users_df = pd.read_csv(USERS_CSV_PATH)
+
+        # Verificar se o usuário e senha existem
+        match = users_df[(users_df['username'] == username) & (users_df['password'] == password)]
+
+        if not match.empty:
+            session['username'] = username  # Guarda o username na sessão
+            return redirect(url_for('home'))
+        else:
+            return render_template('login.html', login_error=True)
+    # Se GET, apenas mostra o formulário
     return render_template('login.html')
-
-@app.route('/login', methods=['POST'])
-def login():
-    username = request.form['username']
-    password = request.form['password']
-
-    users_df = pd.read_csv(USERS_CSV_PATH)
-
-    # Verificar se o usuário e senha existem
-    match = users_df[(users_df['username'] == username) & (users_df['password'] == password)]
-
-    if not match.empty:
-        session['username'] = username  # Guarda o username na sessão
-        return redirect(url_for('home'))
-    else:
-        return "Login falhou. Verifica os dados."
 
 @app.route('/home')
 def home():
