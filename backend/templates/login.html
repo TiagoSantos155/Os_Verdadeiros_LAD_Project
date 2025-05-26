@@ -13,7 +13,7 @@
         <div class="login-box">
             <h2>Login</h2>
             {% if login_error %}
-            <div style="color: #fff; background: #c0392b; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center;">
+            <div style="color: #fff; background: #c0392b; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-family: 'Orbitron', Arial, sans-serif; letter-spacing: 1px;">
                 Dados incorretos, tente novamente
             </div>
             {% endif %}
@@ -22,9 +22,11 @@
                     <input type="text" name="username" placeholder="Username" required>
                     <span class="icon">👤</span>
                 </div>
-                <div class="input-group">
-                    <input type="password" name="password" placeholder="Password" required>
-                    <span class="icon">🔒</span>
+                <div class="input-group" style="position: relative;">
+                    <input type="password" name="password" placeholder="Password" required id="password-input">
+                    <button type="button" id="toggle-password" style="position: absolute; right: 8px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; font-size: 1.1em; color: #333;">
+                        👁️
+                    </button>
                 </div>
                 <div class="options">
                     <label><input type="checkbox"> Lembrar-me</label>
@@ -36,5 +38,14 @@
             </form>
         </div>
     </div>
+    <script>
+        const togglePassword = document.getElementById('toggle-password');
+        const passwordInput = document.getElementById('password-input');
+        togglePassword.addEventListener('click', function () {
+            const type = passwordInput.type === 'password' ? 'text' : 'password';
+            passwordInput.type = type;
+            this.textContent = type === 'password' ? '👁️' : '🙈';
+        });
+    </script>
 </body>
 </html>
