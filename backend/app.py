@@ -1,8 +1,9 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, render_template, request, redirect, url_for, session
 import pandas as pd
 import os
 
 app = Flask(__name__)
+app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
@@ -23,9 +24,17 @@ def login():
     match = users_df[(users_df['username'] == username) & (users_df['password'] == password)]
 
     if not match.empty:
-        return f"Login bem-sucedido! Bem-vindo, {username}"
+        session['username'] = username  # Guarda o username na sessão
+        return redirect(url_for('home'))
     else:
         return "Login falhou. Verifica os dados."
+
+@app.route('/home')
+def home():
+    if 'username' not in session:
+        return redirect(url_for('index'))
+    username = session['username']
+    return render_template('home.html', username=username)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -107,6 +116,11 @@ def developer_register():
         return redirect(url_for('developer_login'))
 
     return render_template('developer_register.html')
+
+@app.route('/logout', methods=['GET', 'POST'])
+def logout():
+    session.pop('username', None)
+    return redirect(url_for('index'))
 
 if __name__ == '__main__':
     app.run(debug=True)
