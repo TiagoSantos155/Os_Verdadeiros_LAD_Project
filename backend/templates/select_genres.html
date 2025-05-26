@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Seleciona os teus géneros favoritos</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        .genres-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            justify-content: center;
+            margin: 30px 0;
+        }
+        .genre-option {
+            background: #232f3e;
+            color: #fff;
+            border-radius: 8px;
+            padding: 12px 24px;
+            cursor: pointer;
+            border: 2px solid #66c0f4;
+            font-family: 'Orbitron', Arial, sans-serif;
+            font-size: 1.1em;
+            transition: background 0.2s, color 0.2s;
+        }
+        .genre-option.selected {
+            background: #66c0f4;
+            color: #232f3e;
+        }
+        .genre-checkbox {
+            display: none;
+        }
+        .genre-error {
+            color: #fff;
+            background: #c0392b;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-family: 'Orbitron', Arial, sans-serif;
+            letter-spacing: 1px;
+        }
+    </style>
+</head>
+<body>
+    <div class="page-wrapper">
+        <h1 class="logo">Verdadeiros Jogos</h1>
+        <div class="login-box">
+            <h2>Seleciona os 3 géneros de jogos que mais gostas</h2>
+            {% if error %}
+            <div class="genre-error">{{ error }}</div>
+            {% endif %}
+            <form method="post">
+                <div class="genres-container">
+                    {% for genre in genres %}
+                    <label class="genre-option">
+                        <input type="checkbox" name="genres" value="{{ genre }}" class="genre-checkbox" onchange="handleGenreSelect(this)">
+                        {{ genre }}
+                    </label>
+                    {% endfor %}
+                </div>
+                <button type="submit" class="login-btn">Confirmar</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        function handleGenreSelect(checkbox) {
+            const checkboxes = document.querySelectorAll('.genre-checkbox');
+            const selected = Array.from(checkboxes).filter(cb => cb.checked);
+            if (selected.length > 3) {
+                checkbox.checked = false;
+                return;
+            }
+            // Toggle selected class
+            document.querySelectorAll('.genre-option').forEach(label => {
+                const input = label.querySelector('input');
+                if (input.checked) {
+                    label.classList.add('selected');
+                } else {
+                    label.classList.remove('selected');
+                }
+            });
+        }
+        // Inicializa seleção visual ao carregar
+        document.querySelectorAll('.genre-checkbox').forEach(cb => {
+            cb.addEventListener('change', function() { handleGenreSelect(this); });
+        });
+    </script>
+</body>
+</html>

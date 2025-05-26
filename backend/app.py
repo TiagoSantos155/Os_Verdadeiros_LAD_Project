@@ -16,24 +16,59 @@ def index():
         password = request.form['password']
 
         users_df = pd.read_csv(USERS_CSV_PATH)
+        # Garante que a coluna genres existe
+        if 'genres' not in users_df.columns:
+            users_df['genres'] = ''
+            users_df.to_csv(USERS_CSV_PATH, index=False)
 
-        # Verificar se o usuário e senha existem
         match = users_df[(users_df['username'] == username) & (users_df['password'] == password)]
 
         if not match.empty:
             session['username'] = username  # Guarda o username na sessão
+            user_row = match.iloc[0]
+            if pd.isna(user_row.get('genres', None)) or user_row.get('genres', '') == '':
+                return redirect(url_for('select_genres'))
             return redirect(url_for('home'))
         else:
             return render_template('login.html', login_error=True)
     # Se GET, apenas mostra o formulário
     return render_template('login.html')
 
+@app.route('/select-genres', methods=['GET', 'POST'])
+def select_genres():
+    if 'username' not in session:
+        return redirect(url_for('index'))
+
+    genres_list = [
+        "Ação", "Aventura", "RPG", "Estratégia", "Simulação",
+        "Desporto", "Corridas", "Puzzle", "Terror", "Multijogador"
+    ]
+
+    if request.method == 'POST':
+        selected_genres = request.form.getlist('genres')
+        if len(selected_genres) != 3:
+            return render_template('select_genres.html', genres=genres_list, error="Seleciona exatamente 3 géneros.")
+
+        users_df = pd.read_csv(USERS_CSV_PATH)
+        username = session['username']
+        users_df.loc[users_df['username'] == username, 'genres'] = ','.join(selected_genres)
+        users_df.to_csv(USERS_CSV_PATH, index=False)
+        return redirect(url_for('home'))
+
+    return render_template('select_genres.html', genres=genres_list)
+
 @app.route('/home')
 def home():
     if 'username' not in session:
         return redirect(url_for('index'))
     username = session['username']
-    return render_template('home.html', username=username)
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    user_row = users_df[users_df['username'] == username].iloc[0]
+    # Se não escolheu géneros, redireciona para seleção
+    if pd.isna(user_row.get('genres', None)) or user_row.get('genres', '') == '':
+        return redirect(url_for('select_genres'))
+    recommended_games = []  # Placeholder para recomendações
+    return render_template('home.html', username=username, recommended_games=recommended_games)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -42,29 +77,29 @@ def register():
         password = request.form['password']
 
         if not os.path.exists(USERS_CSV_PATH):
-            # Cria ficheiro se não existir
-            users_df = pd.DataFrame(columns=['user_id', 'username', 'password'])
+            users_df = pd.DataFrame(columns=['user_id', 'username', 'password', 'genres'])
         else:
             users_df = pd.read_csv(USERS_CSV_PATH)
+            if 'genres' not in users_df.columns:
+                users_df['genres'] = ''
 
-        # Verifica se username já existe
         if username in users_df['username'].values:
             return "Nome de utilizador já existe. Escolhe outro."
 
-        # Criar novo user_id
         new_user_id = users_df['user_id'].max() + 1 if not users_df.empty else 1
 
-        # Adicionar novo utilizador
         new_user = pd.DataFrame([{
             'user_id': new_user_id,
             'username': username,
-            'password': password
+            'password': password,
+            'genres': ''
         }])
 
         users_df = pd.concat([users_df, new_user], ignore_index=True)
         users_df.to_csv(USERS_CSV_PATH, index=False)
 
-        return redirect(url_for('index'))
+        session['username'] = username
+        return redirect(url_for('select_genres'))
 
     return render_template('register.html')
 
