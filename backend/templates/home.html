@@ -13,11 +13,13 @@
             <a href="#">Biblioteca</a>
             <a href="#">Comunidade</a>
             <a href="#">Perfil</a>
-            <form action="{{ url_for('logout') }}" method="post" class="logout-form">
+        </nav>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="steam-user">Bem-vindo, {{ username }}!</div>
+            <form action="{{ url_for('logout') }}" method="post" class="logout-form" style="margin: 0;">
                 <button class="logout-btn" type="submit">Logout</button>
             </form>
-        </nav>
-        <div class="steam-user">Bem-vindo, {{ username }}!</div>
+        </div>
     </header>
     <main class="steam-main">
         <section class="steam-banner">
