@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Bem-vindo | RealGames</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@500&display=swap" rel="stylesheet">
+</head>
+<body>
+    <div class="page-wrapper">
+        <h1 class="logo">RealGames</h1>
+        <h2 class="info-title" style="margin-bottom: 24px;">
+            Bem-vindo à RealGames
+        </h2>
+        <div class="info-text" style="margin-bottom: 38px;">
+            A RealGames é a tua plataforma para descobrir jogos incríveis feitos à tua medida.<br><br>
+            Seleciona os teus géneros favoritos, recebe recomendações personalizadas, explora novidades e encontra o teu próximo jogo favorito.<br><br>
+            Junta-te à comunidade e aproveita ao máximo o mundo dos videojogos!
+        </div>
+        <a href="{{ url_for('login') }}">
+            <button class="login-btn" style="width: auto; padding: 12px 44px; font-size: 1.15rem;">Login</button>
+        </a>
+    </div>
+    <style>
+        /* Mantém o estilo consistente com as outras páginas */
+        .info-title {
+            color: #2176ae;
+            font-family: 'Orbitron', Arial, sans-serif;
+            font-size: 2rem;
+            text-align: center;
+            letter-spacing: 1px;
+        }
+        .info-text {
+            color: white;
+            background: none;
+            font-size: 1.18rem;
+            line-height: 1.7;
+            text-align: center;
+            font-family: 'Orbitron', Arial, sans-serif;
+        }
+    </style>
+</body>
+</html>

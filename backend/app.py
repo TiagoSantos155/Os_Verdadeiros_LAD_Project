@@ -9,8 +9,12 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
 DEVS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/developers.csv")
 
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.route('/')
+def info():
+    return render_template('info.html')
+
+@app.route('/login', methods=['GET', 'POST'])
+def login():
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
