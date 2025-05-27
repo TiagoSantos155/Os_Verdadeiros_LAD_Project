@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request, redirect, url_for, session
 import pandas as pd
 import os
+import requests
 
 app = Flask(__name__)
 app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
@@ -8,6 +9,59 @@ app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
 DEVS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/developers.csv")
+PURCHASED_GAMES_CSV = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv")
+
+TOP10_NAMES = [
+    "Counter-Strike 2",
+    "PUBG: BATTLEGROUNDS",
+    "Left 4 Dead 2",
+    "PAYDAY 2",
+    "Unturned",
+    "Apex Legends™",
+    "Warframe",
+    "Grand Theft Auto V",
+    "VR HOT"
+]
+
+def get_top10_games():
+    import pandas as pd
+    top10 = []
+    try:
+        df = pd.read_csv(PURCHASED_GAMES_CSV)
+        # Agora usa a coluna 'title' em vez de 'gamename'
+        for name in TOP10_NAMES:
+            row = df[df['title'].str.lower() == name.lower()]
+            if not row.empty:
+                gameid = int(row.iloc[0]['gameid'])
+                # Buscar imagem via API Steam
+                api_url = f"https://store.steampowered.com/api/appdetails?appids={gameid}"
+                try:
+                    resp = requests.get(api_url, timeout=3)
+                    data = resp.json()
+                    img_url = ""
+                    if data and str(gameid) in data and data[str(gameid)]['success']:
+                        img_url = data[str(gameid)]['data'].get('header_image', '')
+                    top10.append({
+                        "name": name,
+                        "gameid": gameid,
+                        "img": img_url
+                    })
+                except Exception:
+                    top10.append({
+                        "name": name,
+                        "gameid": gameid,
+                        "img": ""
+                    })
+            else:
+                top10.append({
+                    "name": name,
+                    "gameid": None,
+                    "img": ""
+                })
+    except Exception:
+        # Se não conseguir ler o CSV, devolve lista vazia
+        return []
+    return top10
 
 @app.route('/')
 def info():
@@ -68,11 +122,14 @@ def home():
     username = session['username']
     users_df = pd.read_csv(USERS_CSV_PATH)
     user_row = users_df[users_df['username'] == username].iloc[0]
-    # Se não escolheu géneros, redireciona para seleção
     if pd.isna(user_row.get('genres', None)) or user_row.get('genres', '') == '':
         return redirect(url_for('select_genres'))
     recommended_games = []  # Placeholder para recomendações
-    return render_template('home.html', username=username, recommended_games=recommended_games)
+
+    # Obter Top 10 jogos
+    top10_games = get_top10_games()
+
+    return render_template('home.html', username=username, recommended_games=recommended_games, top10_games=top10_games)
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
