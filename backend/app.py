@@ -9,7 +9,7 @@ app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
 DEVS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/developers.csv")
-PURCHASED_GAMES_CSV = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv")
+GAMES_CSV = os.path.join(BASE_DIR, "../dataset/simpleDataSet.csv")
 
 TOP10_NAMES = [
     "Counter-Strike 2",
@@ -27,7 +27,7 @@ def get_top10_games():
     import pandas as pd
     top10 = []
     try:
-        df = pd.read_csv(PURCHASED_GAMES_CSV)
+        df = pd.read_csv(GAMES_CSV)
         # Agora usa a coluna 'title' em vez de 'gamename'
         for name in TOP10_NAMES:
             row = df[df['title'].str.lower() == name.lower()]
