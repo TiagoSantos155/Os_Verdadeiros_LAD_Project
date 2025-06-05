@@ -2,6 +2,8 @@ from flask import Flask, render_template, request, redirect, url_for, session
 import pandas as pd
 import os
 import requests
+import json
+from functools import lru_cache
 
 app = Flask(__name__)
 app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
@@ -9,7 +11,7 @@ app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
 DEVS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/developers.csv")
-GAMES_CSV = os.path.join(BASE_DIR, "../dataset/simpleDataSet.csv")
+SIMPLE_DATASET_CSV = os.path.join(BASE_DIR, "../dataset/simpleDataSet.csv")
 
 TOP10_NAMES = [
     "Counter-Strike 2",
@@ -23,35 +25,50 @@ TOP10_NAMES = [
     "VR HOT"
 ]
 
+@lru_cache(maxsize=2048)
+def get_game_image_cached(gameid):
+    # Tenta obter imagem da API Steam, se falhar tenta buscar do dataset
+    api_url = f"https://store.steampowered.com/api/appdetails?appids={gameid}"
+    try:
+        resp = requests.get(api_url, timeout=3)
+        data = resp.json()
+        if data and str(gameid) in data and data[str(gameid)]['success']:
+            img = data[str(gameid)]['data'].get('header_image', '')
+            if img:
+                return img
+    except Exception:
+        pass
+    # Fallback: tenta buscar imagem do dataset se existir coluna 'img' ou 'header_image'
+    try:
+        df = pd.read_csv(SIMPLE_DATASET_CSV)
+        row = df[df['gameid'] == gameid]
+        if not row.empty:
+            if 'img' in row.columns:
+                img = row.iloc[0]['img']
+                if isinstance(img, str) and img.strip():
+                    return img
+            if 'header_image' in row.columns:
+                img = row.iloc[0]['header_image']
+                if isinstance(img, str) and img.strip():
+                    return img
+    except Exception:
+        pass
+    return ""
+
 def get_top10_games():
-    import pandas as pd
     top10 = []
     try:
-        df = pd.read_csv(GAMES_CSV)
-        # Agora usa a coluna 'title' em vez de 'gamename'
+        df = pd.read_csv(SIMPLE_DATASET_CSV)
         for name in TOP10_NAMES:
-            row = df[df['title'].str.lower() == name.lower()]
+            row = df[df['title'].str.strip().str.lower() == name.strip().lower()]
             if not row.empty:
                 gameid = int(row.iloc[0]['gameid'])
-                # Buscar imagem via API Steam
-                api_url = f"https://store.steampowered.com/api/appdetails?appids={gameid}"
-                try:
-                    resp = requests.get(api_url, timeout=3)
-                    data = resp.json()
-                    img_url = ""
-                    if data and str(gameid) in data and data[str(gameid)]['success']:
-                        img_url = data[str(gameid)]['data'].get('header_image', '')
-                    top10.append({
-                        "name": name,
-                        "gameid": gameid,
-                        "img": img_url
-                    })
-                except Exception:
-                    top10.append({
-                        "name": name,
-                        "gameid": gameid,
-                        "img": ""
-                    })
+                img_url = get_game_image_cached(gameid)
+                top10.append({
+                    "name": name,
+                    "gameid": gameid,
+                    "img": img_url
+                })
             else:
                 top10.append({
                     "name": name,
@@ -59,9 +76,85 @@ def get_top10_games():
                     "img": ""
                 })
     except Exception:
-        # Se não conseguir ler o CSV, devolve lista vazia
         return []
     return top10
+
+def get_games_by_genre(genre, exclude_gameids=None, limit=10):
+    df = pd.read_csv(SIMPLE_DATASET_CSV)
+    games = []
+    exclude_gameids = set(exclude_gameids or [])
+    genre_lower = genre.strip().lower()
+    for _, row in df.iterrows():
+        if int(row['gameid']) in exclude_gameids:
+            continue
+        genres_str = row['genres']
+        genres_list = []
+        if isinstance(genres_str, str):
+            genres_list = [g.strip().replace("'", "").replace("[", "").replace("]", "") for g in genres_str.replace('"', '').replace("'", "").replace("[", "").replace("]", "").split(",") if g.strip()]
+        if any(genre_lower == g.lower() for g in genres_list):
+            games.append({
+                "gameid": int(row['gameid']),
+                "title": row['title'],
+                "img": get_game_image_cached(int(row['gameid']))
+            })
+        if len(games) >= limit:
+            break
+    return games
+
+def get_user_ratings(username):
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    user_row = users_df[users_df['username'] == username]
+    if user_row.empty:
+        return {}
+    ratings_str = user_row.iloc[0].get('ratings', '{}')
+    try:
+        ratings = json.loads(ratings_str)
+    except Exception:
+        ratings = {}
+    return ratings
+
+def save_user_rating(username, gameid, rating, genres):
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    idx = users_df[users_df['username'] == username].index
+    if len(idx) == 0:
+        return
+    idx = idx[0]
+    ratings_str = users_df.at[idx, 'ratings'] if 'ratings' in users_df.columns else '{}'
+    try:
+        ratings = json.loads(ratings_str)
+    except Exception:
+        ratings = {}
+    ratings[str(gameid)] = {"rating": rating, "genres": genres}
+    users_df.at[idx, 'ratings'] = json.dumps(ratings)
+    users_df.to_csv(USERS_CSV_PATH, index=False)
+
+def get_preferred_genres(username):
+    # Calcula os géneros preferidos com base nas avaliações
+    ratings = get_user_ratings(username)
+    genre_scores = {}
+    genre_counts = {}
+    for v in ratings.values():
+        for g in v['genres']:
+            genre_scores[g] = genre_scores.get(g, 0) + v['rating']
+            genre_counts[g] = genre_counts.get(g, 0) + 1
+    if not genre_scores:
+        # fallback: usar géneros do registo
+        users_df = pd.read_csv(USERS_CSV_PATH)
+        user_row = users_df[users_df['username'] == username].iloc[0]
+        genres = user_row['genres'].split(",")
+        return [g.strip() for g in genres][:3]
+    # Ordena por média de avaliação
+    genre_avg = sorted(genre_scores.items(), key=lambda x: genre_scores[x[0]]/genre_counts[x[0]], reverse=True)
+    return [g for g, _ in genre_avg][:3]
+
+def get_all_genres():
+    df = pd.read_csv(SIMPLE_DATASET_CSV)
+    genres_set = set()
+    for genres_str in df['genres']:
+        if isinstance(genres_str, str):
+            genres_list = [g.strip().replace("'", "").replace("[", "").replace("]", "") for g in genres_str.replace('"', '').replace("'", "").replace("[", "").replace("]", "").split(",") if g.strip()]
+            genres_set.update(genres_list)
+    return sorted(genres_set)
 
 @app.route('/')
 def info():
@@ -97,16 +190,12 @@ def select_genres():
     if 'username' not in session:
         return redirect(url_for('index'))
 
-    genres_list = [
-        "Ação", "Aventura", "RPG", "Estratégia", "Simulação",
-        "Desporto", "Corridas", "Puzzle", "Terror", "Multijogador"
-    ]
+    genres_list = get_all_genres()
 
     if request.method == 'POST':
         selected_genres = request.form.getlist('genres')
         if len(selected_genres) != 3:
-            return render_template('select_genres.html', genres=genres_list, error="Seleciona exatamente 3 géneros.")
-
+            return render_template('select_genres.html', genres=genres_list, error="Select exactly 3 genres.")
         users_df = pd.read_csv(USERS_CSV_PATH)
         username = session['username']
         users_df.loc[users_df['username'] == username, 'genres'] = ','.join(selected_genres)
@@ -124,12 +213,27 @@ def home():
     user_row = users_df[users_df['username'] == username].iloc[0]
     if pd.isna(user_row.get('genres', None)) or user_row.get('genres', '') == '':
         return redirect(url_for('select_genres'))
-    recommended_games = []  # Placeholder para recomendações
+    recommended_games = []
 
-    # Obter Top 10 jogos
+    # Top 10 jogos (já implementado)
     top10_games = get_top10_games()
 
-    return render_template('home.html', username=username, recommended_games=recommended_games, top10_games=top10_games)
+    # Content-based: recomendações por género preferido (apenas o antigo)
+    preferred_genres = get_preferred_genres(username)
+    shown_gameids = set(g['gameid'] for g in top10_games if g['gameid'])
+    genre_recommendations = []
+    for genre in preferred_genres:
+        games = get_games_by_genre(genre, exclude_gameids=shown_gameids, limit=10)
+        shown_gameids.update(g['gameid'] for g in games)
+        genre_recommendations.append({"genre": genre, "games": games})
+
+    return render_template(
+        'home.html',
+        username=username,
+        recommended_games=recommended_games,
+        top10_games=top10_games,
+        genre_recommendations=genre_recommendations
+    )
 
 @app.route('/register', methods=['GET', 'POST'])
 def register():
@@ -216,6 +320,33 @@ def developer_register():
 def logout():
     session.pop('username', None)
     return redirect(url_for('login'))
+
+@app.route('/rate_game', methods=['POST'])
+def rate_game():
+    if 'username' not in session:
+        return "Unauthorized", 401
+    username = session['username']
+    data = request.json
+    gameid = data.get('gameid')
+    rating = int(data.get('rating'))
+    # Buscar géneros do jogo
+    df = pd.read_csv(SIMPLE_DATASET_CSV)
+    row = df[df['gameid'] == int(gameid)]
+    genres = []
+    if not row.empty:
+        genres_str = row.iloc[0]['genres']
+        if isinstance(genres_str, str):
+            genres = [g.strip().replace("'", "").replace("[", "").replace("]", "") for g in genres_str.replace('"', '').replace("'", "").replace("[", "").replace("]", "").split(",") if g.strip()]
+    save_user_rating(username, gameid, rating, genres)
+    return {"success": True}
+
+# Certifica que a coluna 'ratings' existe no users.csv
+def ensure_ratings_column():
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    if 'ratings' not in users_df.columns:
+        users_df['ratings'] = '{}'
+        users_df.to_csv(USERS_CSV_PATH, index=False)
+ensure_ratings_column()
 
 if __name__ == '__main__':
     app.run(debug=True)

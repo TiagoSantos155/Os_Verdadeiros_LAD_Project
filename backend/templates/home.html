@@ -86,7 +86,7 @@
             <div class="top10-title">Top 10 Jogos Mais Jogados</div>
             <div class="top10-carousel">
                 {% for game in top10_games %}
-                <div class="top10-card">
+                <div class="top10-card game-rate-trigger" data-gameid="{{ game.gameid }}" data-title="{{ game.name }}">
                     {% if game.img %}
                         <img src="{{ game.img }}" alt="{{ game.name }}">
                     {% else %}
@@ -94,9 +94,30 @@
                     {% endif %}
                     <div class="top10-name">{{ game.name }}</div>
                 </div>
+                {% else %}
+                <div style="color:#fff;">Nenhum jogo encontrado.</div>
                 {% endfor %}
             </div>
         </section>
+        {% for genre_block in genre_recommendations %}
+        <section class="genre-section">
+            <div class="top10-title">Recomendados: {{ genre_block.genre }}</div>
+            <div class="top10-carousel">
+                {% for game in genre_block.games %}
+                <div class="top10-card game-rate-trigger" data-gameid="{{ game.gameid }}" data-title="{{ game.title }}">
+                    {% if game.img %}
+                        <img src="{{ game.img }}" alt="{{ game.title }}">
+                    {% else %}
+                        <div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;background:#444;color:#fff;">Sem imagem</div>
+                    {% endif %}
+                    <div class="top10-name">{{ game.title }}</div>
+                </div>
+                {% else %}
+                <div style="color:#fff;">Nenhum jogo encontrado para este género.</div>
+                {% endfor %}
+            </div>
+        </section>
+        {% endfor %}
         <section class="steam-news">
             <h2>Novidades</h2>
             <ul>
@@ -106,6 +127,94 @@
             </ul>
         </section>
     </main>
+    <!-- Modal de avaliação -->
+    <div id="rate-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:1000;">
+        <div style="background:#232f3e; border-radius:12px; padding:32px 28px; min-width:320px; text-align:center; position:relative;">
+            <span id="close-modal" style="position:absolute;top:8px;right:16px;cursor:pointer;font-size:1.5em;color:#fff;">&times;</span>
+            <h3 id="modal-game-title" style="color:#66c0f4; font-family:'Orbitron',Arial,sans-serif; margin-bottom:18px;"></h3>
+            <div id="star-container" style="font-size:2.2em; margin-bottom:18px; display: flex; justify-content: center; gap: 10px;">
+                <span class="star" data-value="1" style="cursor:pointer; color:#888; transition: filter 0.1s, transform 0.1s;">&#11088;</span>
+                <span class="star" data-value="2" style="cursor:pointer; color:#888; transition: filter 0.1s, transform 0.1s;">&#11088;</span>
+                <span class="star" data-value="3" style="cursor:pointer; color:#888; transition: filter 0.1s, transform 0.1s;">&#11088;</span>
+                <span class="star" data-value="4" style="cursor:pointer; color:#888; transition: filter 0.1s, transform 0.1s;">&#11088;</span>
+                <span class="star" data-value="5" style="cursor:pointer; color:#888; transition: filter 0.1s, transform 0.1s;">&#11088;</span>
+            </div>
+            <button id="submit-rating" class="login-btn" style="width:auto; padding:8px 32px; font-size:1.1em;">Submeter Avaliação</button>
+        </div>
+    </div>
+    <script>
+        // Modal de avaliação
+        let selectedRating = 0;
+        let selectedGameId = null;
+        let selectedGameTitle = "";
+
+        function setStars(val) {
+            selectedRating = val;
+            document.querySelectorAll('#star-container .star').forEach((star, idx) => {
+                if (idx < val) {
+                    star.style.color = '#ffd700';
+                    star.style.filter = 'drop-shadow(0 2px 4px #fff6)';
+                    star.style.transform = 'scale(1.15)';
+                } else {
+                    star.style.color = '#888';
+                    star.style.filter = 'none';
+                    star.style.transform = 'scale(1)';
+                }
+            });
+        }
+
+        // Reset stars and rating when opening modal
+        document.querySelectorAll('.game-rate-trigger').forEach(card => {
+            card.addEventListener('click', function() {
+                selectedGameId = this.getAttribute('data-gameid');
+                selectedGameTitle = this.getAttribute('data-title');
+                document.getElementById('modal-game-title').textContent = selectedGameTitle;
+                document.getElementById('rate-modal').style.display = 'flex';
+                selectedRating = 0;
+                setStars(0);
+            });
+        });
+
+        document.getElementById('close-modal').onclick = function() {
+            document.getElementById('rate-modal').style.display = 'none';
+        };
+
+        // Eventos para estrelas: hover e click
+        document.querySelectorAll('#star-container .star').forEach(star => {
+            star.addEventListener('mouseenter', function() {
+                let val = parseInt(this.getAttribute('data-value'));
+                document.querySelectorAll('#star-container .star').forEach((s, idx) => {
+                    if (idx < val) {
+                        s.style.color = '#ffd700';
+                        s.style.filter = 'drop-shadow(0 2px 4px #fff6)';
+                        s.style.transform = 'scale(1.15)';
+                    } else {
+                        s.style.color = '#888';
+                        s.style.filter = 'none';
+                        s.style.transform = 'scale(1)';
+                    }
+                });
+            });
+            star.addEventListener('mouseleave', function() {
+                setStars(selectedRating);
+            });
+            star.addEventListener('click', function() {
+                let val = parseInt(this.getAttribute('data-value'));
+                setStars(val);
+            });
+        });
+
+        document.getElementById('submit-rating').onclick = function() {
+            if (!selectedRating || !selectedGameId) return;
+            fetch('/rate_game', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({gameid: selectedGameId, rating: selectedRating})
+            }).then(res => res.json()).then(data => {
+                document.getElementById('rate-modal').style.display = 'none';
+            });
+        };
+    </script>
     <footer class="steam-footer">
         &copy; RealGames - A tua plataforma de recomendações by Os Verdadeiros
     </footer>

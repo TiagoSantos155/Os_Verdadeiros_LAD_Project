@@ -1,3 +1,6 @@
-version https://git-lfs.github.com/spec/v1
-oid sha256:964aec554ac00c906a15cbe970085fe9f74f33e43786d443454af625bce451ae
-size 233
+user_id,username,password,genres,ratings
+1,cona,conassa,"Action,Adventure,Gore","{""6860"": {""rating"": 1, ""genres"": [""Action""]}, ""60"": {""rating"": 1, ""genres"": [""Action""]}, ""550"": {""rating"": 5, ""genres"": [""Action""]}}"
+2,carlinhos,pau,"Action,Adventure,Audio Production","{""380080"": {""rating"": 5, ""genres"": [""Audio Production""]}, ""15130"": {""rating"": 3, ""genres"": [""Action"", ""Adventure""]}, ""6860"": {""rating"": 1, ""genres"": [""Action""]}}"
+3,pau,pau2,"Action,Adventure,Casual","{""4000"": {""rating"": 5, ""genres"": [""Casual"", ""Indie"", ""Simulation""]}, ""730"": {""rating"": 1, ""genres"": [""Action"", ""Free To Play""]}}"
+4,teste,teste1,"Action,Adventure,Casual","{""11230"": {""rating"": 5, ""genres"": [""Casual"", ""Indie"", ""Racing""]}, ""4000"": {""rating"": 5, ""genres"": [""Casual"", ""Indie"", ""Simulation""]}, ""11340"": {""rating"": 4, ""genres"": [""Action"", ""Indie""]}, ""11250"": {""rating"": 1, ""genres"": [""Simulation"", ""Strategy""]}}"
+5,cu,cu,"Action,Adventure,Casual","{""6900"": {""rating"": 5, ""genres"": [""Action""]}, ""4000"": {""rating"": 1, ""genres"": [""Casual"", ""Indie"", ""Simulation""]}}"
