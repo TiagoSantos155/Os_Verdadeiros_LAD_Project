@@ -4,9 +4,12 @@ import os
 import requests
 import json
 from functools import lru_cache
+import numpy as np
+import warnings
 
 app = Flask(__name__)
 app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
+warnings.filterwarnings("ignore", category=UserWarning)
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 USERS_CSV_PATH = os.path.join(BASE_DIR, "../dataset/users.csv")
@@ -156,6 +159,80 @@ def get_all_genres():
             genres_set.update(genres_list)
     return sorted(genres_set)
 
+def get_matrix_factorization_recommendations(username, limit=10):
+    """
+    Recomenda jogos usando Matrix Factorization (SVD-like) implementado com numpy/pandas.
+    Funciona em Python 3.13 (sem surprise).
+    """
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    ratings_data = []
+    user_ids = []
+    game_ids = []
+    for _, row in users_df.iterrows():
+        user = row['username']
+        ratings_str = row.get('ratings', '{}')
+        try:
+            ratings = json.loads(ratings_str)
+        except Exception:
+            ratings = {}
+        for gameid, v in ratings.items():
+            try:
+                rating = int(v['rating'])
+                ratings_data.append((user, int(gameid), rating))
+                user_ids.append(user)
+                game_ids.append(int(gameid))
+            except Exception:
+                continue
+
+    if not ratings_data:
+        return []
+
+    # Criar matriz utilizador-jogo
+    user_list = sorted(list(set(user_ids)))
+    game_list = sorted(list(set(game_ids)))
+    user_idx = {u: i for i, u in enumerate(user_list)}
+    game_idx = {g: i for i, g in enumerate(game_list)}
+    R = np.zeros((len(user_list), len(game_list)))
+    for user, gameid, rating in ratings_data:
+        R[user_idx[user], game_idx[gameid]] = rating
+
+    # SVD simples
+    try:
+        U, s, Vt = np.linalg.svd(R, full_matrices=False)
+        k = min(20, len(s))  # número de fatores latentes
+        S = np.diag(s[:k])
+        U_k = U[:, :k]
+        Vt_k = Vt[:k, :]
+        R_hat = np.dot(np.dot(U_k, S), Vt_k)
+    except Exception:
+        return []
+
+    # Recomendar jogos para o utilizador atual
+    if username not in user_idx:
+        return []
+    uidx = user_idx[username]
+    user_rated = set()
+    for user, gameid, rating in ratings_data:
+        if user == username:
+            user_rated.add(gameid)
+
+    df_games = pd.read_csv(SIMPLE_DATASET_CSV)
+    candidates = []
+    for gameid, gidx in game_idx.items():
+        if gameid in user_rated:
+            continue
+        # Previsão de rating
+        pred = R_hat[uidx, gidx]
+        row = df_games[df_games['gameid'] == gameid]
+        if not row.empty:
+            candidates.append((pred, {
+                "gameid": int(gameid),
+                "title": row.iloc[0]['title'],
+                "img": get_game_image_cached(int(gameid))
+            }))
+    candidates.sort(reverse=True, key=lambda x: x[0])
+    return [c[1] for c in candidates[:limit]]
+
 @app.route('/')
 def info():
     return render_template('info.html')
@@ -213,12 +290,28 @@ def home():
     user_row = users_df[users_df['username'] == username].iloc[0]
     if pd.isna(user_row.get('genres', None)) or user_row.get('genres', '') == '':
         return redirect(url_for('select_genres'))
-    recommended_games = []
+
+    # Recomendações Matrix Factorization (compatível Python 3.13)
+    recommended_games = get_matrix_factorization_recommendations(username, limit=10)
+    if not recommended_games:
+        # fallback para content-based se não houver dados suficientes
+        preferred_genres = get_preferred_genres(username)
+        shown_gameids = set()
+        recommended_games = []
+        for genre in preferred_genres:
+            games = get_games_by_genre(genre, exclude_gameids=shown_gameids, limit=10)
+            for g in games:
+                if g['gameid'] not in shown_gameids:
+                    recommended_games.append(g)
+                    shown_gameids.add(g['gameid'])
+            if len(recommended_games) >= 10:
+                break
+        recommended_games = recommended_games[:10]
 
     # Top 10 jogos (já implementado)
     top10_games = get_top10_games()
 
-    # Content-based: recomendações por género preferido (apenas o antigo)
+    # Content-based: recomendações por género preferido (secundário)
     preferred_genres = get_preferred_genres(username)
     shown_gameids = set(g['gameid'] for g in top10_games if g['gameid'])
     genre_recommendations = []
