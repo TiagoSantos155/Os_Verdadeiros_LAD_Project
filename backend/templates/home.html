@@ -5,21 +5,7 @@
     <title>Home | RealGames</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <style>
-        .top10-section {
-            margin-bottom: 40px;
-        }
-        .top10-title {
-            color: #66c0f4;
-            font-size: 1.5rem;
-            margin-bottom: 18px;
-        }
-        .top10-carousel {
-            display: flex;
-            gap: 24px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-        .top10-card {
+        .game-card, .top10-card {
             min-width: 220px;
             max-width: 220px;
             background: #232f3e;
@@ -29,19 +15,57 @@
             flex-direction: column;
             align-items: center;
             transition: transform 0.2s;
+            margin-bottom: 12px;
+            overflow: hidden;
         }
-        .top10-card img {
+        .game-card img, .top10-card img {
             width: 100%;
             height: 120px;
             object-fit: cover;
             border-radius: 8px 8px 0 0;
+            background: #444;
+            display: block;
         }
-        .top10-card .top10-name {
+        .game-card .game-title, .top10-card .top10-name {
             color: #fff;
             font-family: 'Orbitron', Arial, sans-serif;
             font-size: 1.05rem;
             text-align: center;
-            padding: 12px 8px 10px 8px;
+            padding: 18px 8px 18px 8px;
+            width: 100%;
+            background: #232f3e;
+        }
+        .game-card .add-library-btn, .top10-card .add-library-btn {
+            margin-bottom: 12px;
+        }
+        .recommended-games, .top10-carousel {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 24px;
+            margin-bottom: 24px;
+        }
+        .top10-carousel {
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+        .top10-section, .genre-section {
+            margin-bottom: 40px;
+        }
+        .top10-title {
+            color: #66c0f4;
+            font-size: 1.5rem;
+            margin-bottom: 18px;
+        }
+        .no-image {
+            width: 100%;
+            height: 120px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #444;
+            color: #fff;
+            border-radius: 8px 8px 0 0;
+            font-size: 1em;
         }
     </style>
 </head>
@@ -50,7 +74,7 @@
         <div class="steam-logo">RealGames</div>
         <nav class="steam-nav">
             <a href="#">Loja</a>
-            <a href="#">Biblioteca</a>
+            <a href="{{ url_for('library') }}">Biblioteca</a>
             <a href="#">Comunidade</a>
             <a href="#">Perfil</a>
         </nav>
@@ -74,10 +98,13 @@
             <div class="recommended-games">
                 {% for game in recommended_games %}
                 <div class="game-card">
-                    <img src="{{ url_for('static', filename=game.image) }}" alt="{{ game.title }}">
+                    {% if game.img %}
+                        <img src="{{ game.img }}" alt="{{ game.title }}">
+                    {% else %}
+                        <div class="no-image">Sem imagem</div>
+                    {% endif %}
                     <div class="game-title">{{ game.title }}</div>
-                    <div class="game-desc">{{ game.description }}</div>
-                    <button class="add-library-btn">Adicionar à Biblioteca</button>
+                    <button class="add-library-btn" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
                 </div>
                 {% endfor %}
             </div>
@@ -90,9 +117,12 @@
                     {% if game.img %}
                         <img src="{{ game.img }}" alt="{{ game.name }}">
                     {% else %}
-                        <div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;background:#444;color:#fff;">Sem imagem</div>
+                        <div class="no-image">Sem imagem</div>
                     {% endif %}
                     <div class="top10-name">{{ game.name }}</div>
+                    {% if game.gameid %}
+                        <button class="add-library-btn" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
+                    {% endif %}
                 </div>
                 {% else %}
                 <div style="color:#fff;">Nenhum jogo encontrado.</div>
@@ -108,9 +138,10 @@
                     {% if game.img %}
                         <img src="{{ game.img }}" alt="{{ game.title }}">
                     {% else %}
-                        <div style="width:100%;height:120px;display:flex;align-items:center;justify-content:center;background:#444;color:#fff;">Sem imagem</div>
+                        <div class="no-image">Sem imagem</div>
                     {% endif %}
                     <div class="top10-name">{{ game.title }}</div>
+                    <button class="add-library-btn" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
                 </div>
                 {% else %}
                 <div style="color:#fff;">Nenhum jogo encontrado para este género.</div>
@@ -214,6 +245,30 @@
                 document.getElementById('rate-modal').style.display = 'none';
             });
         };
+
+        // Adicionar à biblioteca (aplica-se a todos os botões, inclusive os criados dinamicamente)
+        function setupAddToLibraryButtons() {
+            document.querySelectorAll('.add-library-btn').forEach(btn => {
+                if (!btn.dataset.listener) {
+                    btn.addEventListener('click', function() {
+                        const gameid = this.getAttribute('data-gameid');
+                        fetch('/add_to_library', {
+                            method: 'POST',
+                            headers: {'Content-Type': 'application/json'},
+                            body: JSON.stringify({gameid: gameid})
+                        }).then(res => res.json()).then(data => {
+                            if (data.success) {
+                                this.textContent = "Adicionado!";
+                                this.disabled = true;
+                                this.style.background = "#66c0f4";
+                            }
+                        });
+                    });
+                    btn.dataset.listener = "true";
+                }
+            });
+        }
+        setupAddToLibraryButtons();
     </script>
     <footer class="steam-footer">
         &copy; RealGames - A tua plataforma de recomendações by Os Verdadeiros

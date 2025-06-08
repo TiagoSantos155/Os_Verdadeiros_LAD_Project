@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+    <meta charset="UTF-8">
+    <title>Biblioteca | RealGames</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
+    <style>
+        .library-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 32px;
+            margin-bottom: 40px;
+        }
+        .library-card {
+            background: #232f3e;
+            border-radius: 12px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.3);
+            min-width: 220px;
+            max-width: 220px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow: hidden;
+            margin-bottom: 8px;
+        }
+        .library-card img {
+            width: 100%;
+            height: 120px;
+            object-fit: cover;
+            border-radius: 12px 12px 0 0;
+        }
+        .library-title {
+            color: #fff;
+            font-family: 'Orbitron', Arial, sans-serif;
+            font-size: 1.05rem;
+            text-align: center;
+            padding: 16px 8px 18px 8px;
+            flex: 1;
+            width: 100%;
+            background: none;
+        }
+    </style>
+</head>
+<body>
+    <header class="steam-header">
+        <div class="steam-logo">RealGames</div>
+        <nav class="steam-nav">
+            <a href="{{ url_for('home') }}">Loja</a>
+            <a href="{{ url_for('library') }}">Biblioteca</a>
+            <a href="#">Comunidade</a>
+            <a href="#">Perfil</a>
+        </nav>
+        <div style="display: flex; align-items: center; gap: 10px;">
+            <div class="steam-user">Bem-vindo, {{ username }}!</div>
+            <form action="{{ url_for('logout') }}" method="post" class="logout-form" style="margin: 0;">
+                <button class="logout-btn" type="submit">Logout</button>
+            </form>
+        </div>
+    </header>
+    <main class="steam-main">
+        <h2 style="color:#66c0f4; margin-bottom:24px;">A tua Biblioteca</h2>
+        <div class="library-container">
+            {% if games %}
+                {% for game in games %}
+                <div class="library-card">
+                    <img src="{{ game.img }}" alt="{{ game.title }}">
+                    <div class="library-title">{{ game.title }}</div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <div style="color:#fff;">Ainda não adicionaste jogos à tua biblioteca.</div>
+            {% endif %}
+        </div>
+    </main>
+    <footer class="steam-footer">
+        &copy; RealGames - A tua plataforma de recomendações by Os Verdadeiros
+    </footer>
+</body>
+</html>

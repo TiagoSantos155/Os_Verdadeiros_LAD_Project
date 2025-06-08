@@ -433,6 +433,75 @@ def rate_game():
     save_user_rating(username, gameid, rating, genres)
     return {"success": True}
 
+def ensure_ratings_column():
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    if 'ratings' not in users_df.columns:
+        users_df['ratings'] = '{}'
+        users_df.to_csv(USERS_CSV_PATH, index=False)
+ensure_ratings_column()
+
+def ensure_library_column():
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    if 'library' not in users_df.columns:
+        users_df['library'] = '[]'
+        users_df.to_csv(USERS_CSV_PATH, index=False)
+ensure_library_column()
+
+def get_user_library(username):
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    user_row = users_df[users_df['username'] == username]
+    if user_row.empty:
+        return []
+    library_str = user_row.iloc[0].get('library', '[]')
+    try:
+        library = json.loads(library_str)
+    except Exception:
+        library = []
+    return library
+
+def save_user_library(username, library):
+    users_df = pd.read_csv(USERS_CSV_PATH)
+    idx = users_df[users_df['username'] == username].index
+    if len(idx) == 0:
+        return
+    idx = idx[0]
+    users_df.at[idx, 'library'] = json.dumps(library)
+    users_df.to_csv(USERS_CSV_PATH, index=False)
+
+@app.route('/add_to_library', methods=['POST'])
+def add_to_library():
+    if 'username' not in session:
+        return {"success": False, "error": "Unauthorized"}, 401
+    username = session['username']
+    data = request.json
+    gameid = int(data.get('gameid'))
+    library = get_user_library(username)
+    if gameid not in library:
+        library.append(gameid)
+        save_user_library(username, library)
+    return {"success": True}
+
+@app.route('/library')
+def library():
+    if 'username' not in session:
+        return redirect(url_for('login'))
+    username = session['username']
+    library_gameids = get_user_library(username)
+    if not library_gameids:
+        games = []
+    else:
+        df = pd.read_csv(SIMPLE_DATASET_CSV)
+        games = []
+        for gid in library_gameids:
+            row = df[df['gameid'] == gid]
+            if not row.empty:
+                games.append({
+                    "gameid": int(gid),
+                    "title": row.iloc[0]['title'],
+                    "img": get_game_image_cached(int(gid))
+                })
+    return render_template('biblioteca.html', username=username, games=games)
+
 # Certifica que a coluna 'ratings' existe no users.csv
 def ensure_ratings_column():
     users_df = pd.read_csv(USERS_CSV_PATH)
