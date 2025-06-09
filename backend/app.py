@@ -388,18 +388,13 @@ def developer_home():
     dev_username = session['dev_username']
     # Lista de 12 botões e imagens associadas
     buttons = [
-        {"id": "btn1", "label": "Botão 1", "img": url_for('static', filename='dev_images/img1.jpg')},
+        {"id": "btn1", "label": "Botão 1", "img": url_for('static', filename='dev_images/im1.jpg')},
         {"id": "btn2", "label": "Botão 2", "img": url_for('static', filename='dev_images/img2.jpg')},
         {"id": "btn3", "label": "Botão 3", "img": url_for('static', filename='dev_images/img3.jpg')},
         {"id": "btn4", "label": "Botão 4", "img": url_for('static', filename='dev_images/img4.jpg')},
         {"id": "btn5", "label": "Botão 5", "img": url_for('static', filename='dev_images/img5.jpg')},
         {"id": "btn6", "label": "Botão 6", "img": url_for('static', filename='dev_images/img6.jpg')},
-        {"id": "btn7", "label": "Botão 7", "img": url_for('static', filename='dev_images/img7.jpg')},
-        {"id": "btn8", "label": "Botão 8", "img": url_for('static', filename='dev_images/img8.jpg')},
-        {"id": "btn9", "label": "Botão 9", "img": url_for('static', filename='dev_images/img9.jpg')},
-        {"id": "btn10", "label": "Botão 10", "img": url_for('static', filename='dev_images/img10.jpg')},
-        {"id": "btn11", "label": "Botão 11", "img": url_for('static', filename='dev_images/img11.jpg')},
-        {"id": "btn12", "label": "Botão 12", "img": url_for('static', filename='dev_images/img12.jpg')}
+        
     ]
     return render_template('developer_home.html', dev_username=dev_username, buttons=buttons)
 
