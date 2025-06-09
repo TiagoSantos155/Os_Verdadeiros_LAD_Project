@@ -12,9 +12,13 @@
         <h1 class="logo">💻 Login Developer</h1>
         <div class="login-box">
             <h2>Entrar</h2>
+            {% if login_error %}
+            <div style="color: #fff; background: #c0392b; padding: 10px; border-radius: 5px; margin-bottom: 15px; text-align: center; font-family: 'Orbitron', Arial, sans-serif; letter-spacing: 1px;">
+                Dados incorretos, tente novamente
+            </div>
+            {% endif %}
             <form action="/developer-login" method="POST">
                 <div class="input-group">
-                    <input type="text" name="username" placeholder="Username" required>
                     <span class="icon">👤</span>
                 </div>
                 <div class="input-group">

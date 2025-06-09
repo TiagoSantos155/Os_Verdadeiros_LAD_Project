@@ -377,9 +377,10 @@ def developer_login():
             session['dev_username'] = username
             return redirect(url_for('developer_home'))  # Redireciona para a página do developer
         else:
-            return "Credenciais de developer inválidas."
+            # Renderiza o template com erro e mantém o username preenchido
+            return render_template('developer_login.html', login_error=True, request=request)
 
-    return render_template('developer_login.html')
+    return render_template('developer_login.html', login_error=False, request=request)
 
 @app.route('/developer-home')
 def developer_home():
