@@ -3,11 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <title>Home | RealGames</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="{{ url_for('static', filename='home.css') }}">
     <style>
         .game-card, .top10-card {
-            min-width: 220px;
-            max-width: 220px;
             background: #232f3e;
             border-radius: 8px;
             box-shadow: 0 2px 12px rgba(0,0,0,0.3);
@@ -17,6 +17,7 @@
             transition: transform 0.2s, box-shadow 0.2s;
             margin-bottom: 12px;
             overflow: hidden;
+            /* Removido min-width/max-width para responsividade */
         }
         .game-card:hover, .top10-card:hover {
             transform: scale(1.06);
@@ -43,24 +44,6 @@
         .game-card .add-library-btn, .top10-card .add-library-btn {
             margin-bottom: 12px;
         }
-        .recommended-games, .top10-carousel {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 24px;
-            margin-bottom: 24px;
-        }
-        .top10-carousel {
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-        .top10-section, .genre-section {
-            margin-bottom: 40px;
-        }
-        .top10-title {
-            color: #66c0f4;
-            font-size: 1.5rem;
-            margin-bottom: 18px;
-        }
         .no-image {
             width: 100%;
             height: 120px;
@@ -74,21 +57,18 @@
         }
         .steam-banner {
             position: relative;
-            width: 50vw;
-            left: 50%;
-            margin-left: -25vw;
-            margin-right: 0;
+            width: 100%;
             margin-bottom: 32px;
             display: flex;
             flex-direction: column;
             align-items: center;
             box-sizing: border-box;
-            height: 670px; /* Espaço do banner aumentado, imagem não cresce */
-            max-height: 67vw;
+            height: 35vw;
+            max-height: 350px;
             overflow: hidden;
         }
         .banner-img {
-            width: auto;
+            width: 100%;
             height: 100%;
             max-width: 100vw;
             max-height: 100%;
@@ -127,6 +107,22 @@
         .banner-info p {
             font-size: 1.2rem;
         }
+        /* Ajuste responsivo para cards */
+        @media (max-width: 768px) {
+            .game-card, .top10-card {
+                margin-bottom: 16px;
+            }
+            .banner-img, .steam-banner {
+                height: 180px;
+                max-height: 180px;
+            }
+        }
+        @media (max-width: 576px) {
+            .banner-img, .steam-banner {
+                height: 120px;
+                max-height: 120px;
+            }
+        }
     </style>
 </head>
 <body>
@@ -145,42 +141,46 @@
             </form>
         </div>
     </header>
-    <main class="steam-main">
-        <section class="steam-banner">
+    <main class="steam-main container mt-3">
+        <section class="steam-banner mb-4">
             <img src="{{ url_for('static', filename='Realgames.png') }}" alt="Banner principal" class="banner-img">
             <div class="banner-info">
             </div>
         </section>
-        <section class="steam-recommendations">
+        <section class="steam-recommendations mb-4">
             <h2>Recomendações para ti</h2>
-            <div class="recommended-games">
+            <div class="row g-3">
                 {% for game in recommended_games %}
-                <div class="game-card">
-                    {% if game.img %}
-                        <img src="{{ game.img }}" alt="{{ game.title }}">
-                    {% else %}
-                        <div class="no-image">Sem imagem</div>
-                    {% endif %}
-                    <div class="game-title">{{ game.title }}</div>
-                    <button class="add-library-btn" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
+                <div class="col-12 col-sm-6 col-md-4 col-lg-3 d-flex">
+                    <div class="game-card flex-fill w-100 d-flex flex-column">
+                        {% if game.img %}
+                            <img src="{{ game.img }}" alt="{{ game.title }}">
+                        {% else %}
+                            <div class="no-image">Sem imagem</div>
+                        {% endif %}
+                        <div class="game-title">{{ game.title }}</div>
+                        <button class="add-library-btn btn btn-primary w-100 mt-auto" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
+                    </div>
                 </div>
                 {% endfor %}
             </div>
         </section>
-        <section class="top10-section">
+        <section class="top10-section mb-4">
             <div class="top10-title">Top 10 Jogos Mais Jogados</div>
-            <div class="top10-carousel">
+            <div class="row g-3 flex-nowrap overflow-auto" style="flex-wrap: nowrap;">
                 {% for game in top10_games %}
-                <div class="top10-card game-rate-trigger" data-gameid="{{ game.gameid }}" data-title="{{ game.name }}">
-                    {% if game.img %}
-                        <img src="{{ game.img }}" alt="{{ game.name }}">
-                    {% else %}
-                        <div class="no-image">Sem imagem</div>
-                    {% endif %}
-                    <div class="top10-name">{{ game.name }}</div>
-                    {% if game.gameid %}
-                        <button class="add-library-btn" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
-                    {% endif %}
+                <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex" style="min-width:220px;max-width:220px;">
+                    <div class="top10-card game-rate-trigger flex-fill w-100 d-flex flex-column" data-gameid="{{ game.gameid }}" data-title="{{ game.name }}">
+                        {% if game.img %}
+                            <img src="{{ game.img }}" alt="{{ game.name }}">
+                        {% else %}
+                            <div class="no-image">Sem imagem</div>
+                        {% endif %}
+                        <div class="top10-name">{{ game.name }}</div>
+                        {% if game.gameid %}
+                            <button class="add-library-btn btn btn-primary w-100 mt-auto" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
+                        {% endif %}
+                    </div>
                 </div>
                 {% else %}
                 <div style="color:#fff;">Nenhum jogo encontrado.</div>
@@ -188,18 +188,20 @@
             </div>
         </section>
         {% for genre_block in genre_recommendations %}
-        <section class="genre-section">
+        <section class="genre-section mb-4">
             <div class="top10-title">Recomendados: {{ genre_block.genre }}</div>
-            <div class="top10-carousel">
+            <div class="row g-3 flex-nowrap overflow-auto" style="flex-wrap: nowrap;">
                 {% for game in genre_block.games %}
-                <div class="top10-card game-rate-trigger" data-gameid="{{ game.gameid }}" data-title="{{ game.title }}">
-                    {% if game.img %}
-                        <img src="{{ game.img }}" alt="{{ game.title }}">
-                    {% else %}
-                        <div class="no-image">Sem imagem</div>
-                    {% endif %}
-                    <div class="top10-name">{{ game.title }}</div>
-                    <button class="add-library-btn" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
+                <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex" style="min-width:220px;max-width:220px;">
+                    <div class="top10-card game-rate-trigger flex-fill w-100 d-flex flex-column" data-gameid="{{ game.gameid }}" data-title="{{ game.title }}">
+                        {% if game.img %}
+                            <img src="{{ game.img }}" alt="{{ game.title }}">
+                        {% else %}
+                            <div class="no-image">Sem imagem</div>
+                        {% endif %}
+                        <div class="top10-name">{{ game.title }}</div>
+                        <button class="add-library-btn btn btn-primary w-100 mt-auto" data-gameid="{{ game.gameid }}">Adicionar à Biblioteca</button>
+                    </div>
                 </div>
                 {% else %}
                 <div style="color:#fff;">Nenhum jogo encontrado para este género.</div>
@@ -207,7 +209,6 @@
             </div>
         </section>
         {% endfor %}
-        
     </main>
     <!-- Modal de avaliação -->
     <div id="rate-modal" style="display:none; position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(0,0,0,0.7); align-items:center; justify-content:center; z-index:1000;">
@@ -224,6 +225,7 @@
             <button id="submit-rating" class="login-btn" style="width:auto; padding:8px 32px; font-size:1.1em;">Submeter Avaliação</button>
         </div>
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         // Modal de avaliação
         let selectedRating = 0;
