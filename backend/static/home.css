@@ -5,6 +5,15 @@ body {
     color: #c7d5e0;
 }
 
+/* Esconde a barra de scroll global da página */
+body::-webkit-scrollbar {
+    display: none;
+}
+body {
+    -ms-overflow-style: none;  /* IE/Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
 .steam-header {
     background: #171a21;
     display: flex;
@@ -353,7 +362,74 @@ body {
     transform: scale(1.15);
 }
 
-/* Responsive tweaks */
+/* Esconde barras de scroll horizontal nas listas horizontais de jogos */
+.row.overflow-auto::-webkit-scrollbar {
+    display: none;
+}
+.row.overflow-auto {
+    -ms-overflow-style: none;  /* IE/Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+.horizontal-scroll-wrapper {
+    position: relative;
+    display: flex;
+    align-items: center;
+    min-height: 180px;
+    margin-bottom: 10px;
+    /* aumenta o padding lateral para afastar as setas dos jogos */
+    padding-left: 36px;
+    padding-right: 36px;
+}
+
+.scroll-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    z-index: 10;
+    background: linear-gradient(135deg, #232f3e 60%, #66c0f4 100%);
+    color: #fff;
+    border: none;
+    border-radius: 50%;
+    width: 48px;
+    height: 48px;
+    font-size: 2.1rem;
+    font-weight: bold;
+    cursor: pointer;
+    opacity: 0.92;
+    transition: background 0.2s, color 0.2s, opacity 0.2s, box-shadow 0.2s, transform 0.2s;
+    box-shadow: 0 4px 16px #000a, 0 1.5px 8px #66c0f455;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    user-select: none;
+    border: 2.5px solid #8bc53f;
+}
+.scroll-arrow.left {
+    left: -60px;
+}
+.scroll-arrow.right {
+    right: -60px;
+}
+.scroll-arrow:hover {
+    background: linear-gradient(135deg, #8bc53f 60%, #66c0f4 100%);
+    color: #232f3e;
+    opacity: 1;
+    box-shadow: 0 6px 24px #8bc53f77, 0 2px 12px #66c0f455;
+    transform: translateY(-50%) scale(1.08);
+}
+
+/* Responsivo: esconder setas em telas pequenas */
+@media (max-width: 600px) {
+    .scroll-arrow {
+        display: none;
+    }
+    .horizontal-scroll-wrapper {
+        min-height: unset;
+    }
+}
+
 @media (max-width: 768px) {
     .game-card, .top10-card {
         margin-bottom: 16px;

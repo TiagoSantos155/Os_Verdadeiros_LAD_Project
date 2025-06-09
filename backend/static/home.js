@@ -160,4 +160,18 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
     window.addEventListener('scroll', handleBannerResize);
+
+    document.querySelectorAll('.horizontal-scroll-wrapper').forEach(function(wrapper) {
+        const row = wrapper.querySelector('.row.overflow-auto');
+        const leftBtn = wrapper.querySelector('.scroll-arrow.left');
+        const rightBtn = wrapper.querySelector('.scroll-arrow.right');
+        if (!row || !leftBtn || !rightBtn) return;
+
+        leftBtn.addEventListener('click', function() {
+            row.scrollBy({ left: -300, behavior: 'smooth' });
+        });
+        rightBtn.addEventListener('click', function() {
+            row.scrollBy({ left: 300, behavior: 'smooth' });
+        });
+    });
 });

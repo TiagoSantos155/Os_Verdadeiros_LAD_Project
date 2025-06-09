@@ -56,55 +56,63 @@
         </section>
         <section class="top10-section mb-4">
             <div class="top10-title">Top 10 Jogos Mais Jogados</div>
-            <div class="row g-3 flex-nowrap overflow-auto" style="flex-wrap: nowrap;">
-                {% for game in top10_games %}
-                <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex" style="min-width:220px;max-width:220px;">
-                    <div class="top10-card game-rate-trigger flex-fill w-100 d-flex flex-column" data-gameid="{{ game.gameid }}" data-title="{{ game.name }}">
-                        {% if game.img %}
-                            <img src="{{ game.img }}" alt="{{ game.name }}">
-                        {% else %}
-                            <div class="no-image">Sem imagem</div>
-                        {% endif %}
-                        <div class="top10-name">{{ game.name }}</div>
-                        {% if game.gameid %}
+            <div class="horizontal-scroll-wrapper position-relative">
+                <button class="scroll-arrow left" type="button" aria-label="Esquerda">&#8592;</button>
+                <div class="row g-3 flex-nowrap overflow-auto" style="flex-wrap: nowrap;">
+                    {% for game in top10_games %}
+                    <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex" style="min-width:220px;max-width:220px;">
+                        <div class="top10-card game-rate-trigger flex-fill w-100 d-flex flex-column" data-gameid="{{ game.gameid }}" data-title="{{ game.name }}">
+                            {% if game.img %}
+                                <img src="{{ game.img }}" alt="{{ game.name }}">
+                            {% else %}
+                                <div class="no-image">Sem imagem</div>
+                            {% endif %}
+                            <div class="top10-name">{{ game.name }}</div>
+                            {% if game.gameid %}
+                                {% set in_library = game.gameid in user_library %}
+                                <button class="add-library-btn btn btn-primary w-100 mt-auto"
+                                        data-gameid="{{ game.gameid }}"
+                                        {% if in_library %}disabled style="background:#66c0f4;color:#fff;"{% endif %}>
+                                    {% if in_library %}Adicionado!{% else %}Adicionar à Biblioteca{% endif %}
+                                </button>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% else %}
+                    <div style="color:#fff;">Nenhum jogo encontrado.</div>
+                    {% endfor %}
+                </div>
+                <button class="scroll-arrow right" type="button" aria-label="Direita">&#8594;</button>
+            </div>
+        </section>
+        {% for genre_block in genre_recommendations %}
+        <section class="genre-section mb-4">
+            <div class="top10-title">Recomendados: {{ genre_block.genre }}</div>
+            <div class="horizontal-scroll-wrapper position-relative">
+                <button class="scroll-arrow left" type="button" aria-label="Esquerda">&#8592;</button>
+                <div class="row g-3 flex-nowrap overflow-auto" style="flex-wrap: nowrap;">
+                    {% for game in genre_block.games %}
+                    <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex" style="min-width:220px;max-width:220px;">
+                        <div class="top10-card game-rate-trigger flex-fill w-100 d-flex flex-column" data-gameid="{{ game.gameid }}" data-title="{{ game.title }}">
+                            {% if game.img %}
+                                <img src="{{ game.img }}" alt="{{ game.title }}">
+                            {% else %}
+                                <div class="no-image">Sem imagem</div>
+                            {% endif %}
+                            <div class="top10-name">{{ game.title }}</div>
                             {% set in_library = game.gameid in user_library %}
                             <button class="add-library-btn btn btn-primary w-100 mt-auto"
                                     data-gameid="{{ game.gameid }}"
                                     {% if in_library %}disabled style="background:#66c0f4;color:#fff;"{% endif %}>
                                 {% if in_library %}Adicionado!{% else %}Adicionar à Biblioteca{% endif %}
                             </button>
-                        {% endif %}
+                        </div>
                     </div>
+                    {% else %}
+                    <div style="color:#fff;">Nenhum jogo encontrado para este género.</div>
+                    {% endfor %}
                 </div>
-                {% else %}
-                <div style="color:#fff;">Nenhum jogo encontrado.</div>
-                {% endfor %}
-            </div>
-        </section>
-        {% for genre_block in genre_recommendations %}
-        <section class="genre-section mb-4">
-            <div class="top10-title">Recomendados: {{ genre_block.genre }}</div>
-            <div class="row g-3 flex-nowrap overflow-auto" style="flex-wrap: nowrap;">
-                {% for game in genre_block.games %}
-                <div class="col-8 col-sm-6 col-md-4 col-lg-3 d-flex" style="min-width:220px;max-width:220px;">
-                    <div class="top10-card game-rate-trigger flex-fill w-100 d-flex flex-column" data-gameid="{{ game.gameid }}" data-title="{{ game.title }}">
-                        {% if game.img %}
-                            <img src="{{ game.img }}" alt="{{ game.title }}">
-                        {% else %}
-                            <div class="no-image">Sem imagem</div>
-                        {% endif %}
-                        <div class="top10-name">{{ game.title }}</div>
-                        {% set in_library = game.gameid in user_library %}
-                        <button class="add-library-btn btn btn-primary w-100 mt-auto"
-                                data-gameid="{{ game.gameid }}"
-                                {% if in_library %}disabled style="background:#66c0f4;color:#fff;"{% endif %}>
-                            {% if in_library %}Adicionado!{% else %}Adicionar à Biblioteca{% endif %}
-                        </button>
-                    </div>
-                </div>
-                {% else %}
-                <div style="color:#fff;">Nenhum jogo encontrado para este género.</div>
-                {% endfor %}
+                <button class="scroll-arrow right" type="button" aria-label="Direita">&#8594;</button>
             </div>
         </section>
         {% endfor %}
