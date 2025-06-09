@@ -291,6 +291,19 @@ def home():
     if pd.isna(user_row.get('genres', None)) or user_row.get('genres', '') == '':
         return redirect(url_for('select_genres'))
 
+    # Biblioteca do utilizador
+    user_library = []
+    if 'library' in user_row and pd.notna(user_row['library']) and str(user_row['library']).strip():
+        try:
+            import ast
+            user_library = ast.literal_eval(user_row['library'])
+            if not isinstance(user_library, list):
+                user_library = []
+        except Exception:
+            user_library = []
+    else:
+        user_library = []
+
     # Recomendações Matrix Factorization (compatível Python 3.13)
     recommended_games = get_matrix_factorization_recommendations(username, limit=10)
     if not recommended_games:
@@ -325,7 +338,8 @@ def home():
         username=username,
         recommended_games=recommended_games,
         top10_games=top10_games,
-        genre_recommendations=genre_recommendations
+        genre_recommendations=genre_recommendations,
+        user_library=user_library
     )
 
 @app.route('/register', methods=['GET', 'POST'])
