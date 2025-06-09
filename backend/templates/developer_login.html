@@ -19,6 +19,7 @@
             {% endif %}
             <form action="/developer-login" method="POST">
                 <div class="input-group">
+                    <input type="text" name="username" placeholder="Username" required value="{{ request.form['username'] if login_error and request.form.get('username') else '' }}">
                     <span class="icon">👤</span>
                 </div>
                 <div class="input-group">
