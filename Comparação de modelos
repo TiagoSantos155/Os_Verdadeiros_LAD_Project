@@ -27,3 +27,15 @@
 
 </details>
 
+---
+
+## Resultados - Naive Bayes
+
+| Métrica                | Valor      |
+|------------------------|------------|
+| **Acurácia (teste)**   | 0.56       |
+| **Precisão**           | 0.55       |
+| **Recall**             | 0.64       |
+| **F1-score**           | 0.59       |
+| **Tempo de treino**    | 0.0370 s   |
+
