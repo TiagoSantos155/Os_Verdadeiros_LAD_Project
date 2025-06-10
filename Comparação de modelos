@@ -39,3 +39,15 @@
 | **F1-score**           | 0.59       |
 | **Tempo de treino**    | 0.0370 s   |
 
+---
+
+## Resultados - SVM
+
+| Métrica                | Valor      |
+|------------------------|------------|
+| **Acurácia (teste)**   | 0.59       |
+| **Precisão**           | 0.55       |
+| **Recall**             | 0.90       |
+| **F1-score**           | 0.69       |
+| **Tempo de treino**    | 22.2028 s  |
+
