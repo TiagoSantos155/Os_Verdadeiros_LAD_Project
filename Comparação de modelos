@@ -37,10 +37,12 @@
 | **Precisão**           | 0.55       |
 | **Recall**             | 0.64       |
 | **F1-score**           | 0.59       |
-| **Tempo de treino**    | 0.0370 s   |
+| **Tempo de treino**    | 0.0260 s   |
 
 ---
 
+
+#Aviso No  modelo SVM usamos apenas 5000 linhas
 ## Resultados - SVM
 
 | Métrica                | Valor      |
@@ -49,7 +51,7 @@
 | **Precisão**           | 0.55       |
 | **Recall**             | 0.90       |
 | **F1-score**           | 0.69       |
-| **Tempo de treino**    | 22.2028 s  |
+| **Tempo de treino**    | 21.3959 s  |
 
 ---
 
