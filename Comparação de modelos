@@ -118,3 +118,12 @@
 | **MAE (teste)**     | 4.14        | 2.31         |
 | **R2 (teste)**      | 0.11        | 0.75         |
 | **Tempo de treino** | 0.2221 s    | 0.6871 s     |
+
+## Resultados - Random Forest (Regressor)
+
+| Métrica                | Valor      |
+|------------------------|------------|
+| **RMSE (teste)**       | 4.03       |
+| **MAE (teste)**        | 0.25       |
+| **R2 (teste)**         | 0.88       |
+| **Tempo de treino**    | 9.9996 s   |
