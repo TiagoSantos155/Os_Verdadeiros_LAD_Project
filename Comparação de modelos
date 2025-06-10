@@ -62,4 +62,13 @@
 | **R2 (validação)**            | 0.02    |
 | **R2 (teste)**                | 0.01    |
 | **Acurácia binária (0/1)**    | 0.54    |
-| **Tempo de treino**           | 0.0126 s|
+| **Tempo de treino**           | 0.0126 s |
+
+## Resultados - Neural Networks (Regressor)
+
+|                | **Single Layer** | **Multi Layer** |
+|----------------|:----------------:|:---------------:|
+| **RMSE (teste)**    | 9.45             | 9.31            |
+| **MAE (teste)**     | 4.16             | 4.15            |
+| **R2 (teste)**      | 0.03             | 0.06            |
+| **Tempo de treino** | 76.70 s          | 338.12 s        |
