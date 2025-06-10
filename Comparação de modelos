@@ -39,7 +39,6 @@
 | **F1-score**           | 0.59       |
 | **Tempo de treino**    | 0.0370 s   |
 
-<<<<<<< HEAD
 ---
 
 ## Resultados - SVM
@@ -52,7 +51,7 @@
 | **F1-score**           | 0.69       |
 | **Tempo de treino**    | 22.2028 s  |
 
-=======
+---
 
 ## Resultados - Logistic Regression
 
@@ -86,4 +85,13 @@
 | **MAE (teste)**     | 4.16             | 4.15            |
 | **R2 (teste)**      | 0.03             | 0.06            |
 | **Tempo de treino** | 76.70 s          | 338.12 s        |
->>>>>>> e9321dcabb5065c46c79b2ba727f13155b1c9c26
+
+## Resultados - Ridge Regression
+
+| Alpha | RMSE (teste) | MAE (teste) | R2 (teste) | Tempo de treino |
+|-------|--------------|-------------|------------|-----------------|
+| 0.01  | 11.34        | 4.32        | 0.01       | 0.0344 s        |
+| 0.1   | 11.34        | 4.32        | 0.01       | 0.0179 s        |
+| 1     | 11.34        | 4.32        | 0.01       | 0.0168 s        |
+| 10    | 11.34        | 4.32        | 0.01       | 0.0187 s        |
+| 100   | 11.34        | 4.32        | 0.01       | 0.0168 s        |

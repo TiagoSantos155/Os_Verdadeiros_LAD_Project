@@ -113,21 +113,6 @@ print(f'R2 no teste: {test_r2:.2f}')
 print(f'Acurácia binária (0/1) no teste: {accuracy:.2f}')
 print(f'Tempo de treino (fit): {train_time:.4f} segundos')
 
-# Interpretação dos resultados:
-# - RMSE (10~11): O erro médio das previsões está em torno de 10-11 euros. Se os preços dos jogos variam pouco, esse erro é alto.
-# - MAE (4.47): Em média, o modelo erra o preço em 4.47 euros.
-# - R2 (0.01): O modelo explica apenas 1% da variação do preço. Isso é MUITO baixo. Um modelo bom teria R2 próximo de 1.
-# - Acurácia binária (0.53): Se você transformar o preço em caro/barato, o modelo acerta só 53% das vezes (quase um chute).
-# - Tempo de treino: Muito rápido, mas isso não compensa a baixa qualidade do modelo.
-
-# Resumindo:
-# Estes valores são ruins. O modelo não consegue prever bem o preço dos jogos só com 'developers' e 'genres'.
-# Para melhorar:
-# - Use mais features relevantes (ex: release_date, ratings, reviews, etc).
-# - Considere transformar variáveis categóricas em dummies (OneHotEncoder).
-# - Teste outros modelos de regressão.
-# - Analise a distribuição dos preços (talvez precise normalizar ou tratar outliers).
-
 def on_closing():
     root.destroy()
     exit(0)  # Termina o programa após mostrar os dados
