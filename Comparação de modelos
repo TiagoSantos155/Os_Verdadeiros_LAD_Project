@@ -39,6 +39,7 @@
 | **F1-score**           | 0.59       |
 | **Tempo de treino**    | 0.0370 s   |
 
+<<<<<<< HEAD
 ---
 
 ## Resultados - SVM
@@ -51,3 +52,38 @@
 | **F1-score**           | 0.69       |
 | **Tempo de treino**    | 22.2028 s  |
 
+=======
+
+## Resultados - Logistic Regression
+
+| Métrica                | Valor      |
+|------------------------|------------|
+| **Acurácia (validação)** | 0.56     |
+| **Acurácia (teste)**     | 0.56     |
+| **Precisão**             | 0.55     |
+| **Recall**               | 0.58     |
+| **F1-score**             | 0.57     |
+| **Tempo de treino**      | 0.0930 s |
+
+## Resultados - Linear Regression
+
+| Métrica                       | Valor   |
+|-------------------------------|---------|
+| **RMSE (validação)**          | 10.28   |
+| **RMSE (teste)**              | 11.38   |
+| **MAE (teste)**               | 4.47    |
+| **R2 (treino)**               | 0.02    |
+| **R2 (validação)**            | 0.02    |
+| **R2 (teste)**                | 0.01    |
+| **Acurácia binária (0/1)**    | 0.54    |
+| **Tempo de treino**           | 0.0126 s |
+
+## Resultados - Neural Networks (Regressor)
+
+|                | **Single Layer** | **Multi Layer** |
+|----------------|:----------------:|:---------------:|
+| **RMSE (teste)**    | 9.45             | 9.31            |
+| **MAE (teste)**     | 4.16             | 4.15            |
+| **R2 (teste)**      | 0.03             | 0.06            |
+| **Tempo de treino** | 76.70 s          | 338.12 s        |
+>>>>>>> e9321dcabb5065c46c79b2ba727f13155b1c9c26
