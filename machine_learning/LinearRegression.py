@@ -44,8 +44,8 @@ X.loc[:, 'release_date'] = pd.to_datetime(X['release_date'], errors='coerce').ma
 )
 
 # Separar em treino, validação e teste (70% treino, 15% validação, 15% teste)
-X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)  # 0.5 x 0.3 = 0.15
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=69)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=69)  # 0.5 x 0.3 = 0.15
 
 # Normalizar os dados
 scaler = StandardScaler()
@@ -55,7 +55,7 @@ X_test_scaled = scaler.transform(X_test)
 
 # Aplicar PCA (redução de dimensionalidade)
 n_components = 2
-pca = PCA(n_components=n_components, svd_solver='auto', random_state=42)
+pca = PCA(n_components=n_components, svd_solver='auto', random_state=69)
 X_train_pca = pca.fit_transform(X_train_scaled)
 X_val_pca = pca.transform(X_val_scaled)
 X_test_pca = pca.transform(X_test_scaled)
