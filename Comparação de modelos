@@ -51,13 +51,15 @@
 | **F1-score**             | 0.57     |
 | **Tempo de treino**      | 0.0930 s |
 
-<!--
-Explicação: Por que a Logistic Regression teve desempenho ruim?
+## Resultados - Linear Regression
 
-- **Features fracas:** As features `developers` e `genres` são categóricas e codificadas como números inteiros, mas não têm relação linear direta com o target (`is_expensive`). Logistic Regression funciona melhor com features numéricas que tenham relação linear com o alvo.
-- **Pouca informação:** Não está usando o preço (`eur`) nem outras variáveis numéricas relevantes.
-- **Separação não linear:** O problema pode não ser linearmente separável, o que prejudica a Logistic Regression.
-- **KNN é menos sensível:** KNN pode capturar padrões mesmo com features categóricas codificadas, enquanto Logistic Regression não.
-
-**Sugestão:** Tente usar mais features numéricas, transformar variáveis categóricas em dummies (OneHotEncoder), ou usar modelos mais robustos para dados categóricos.
--->
+| Métrica                       | Valor   |
+|-------------------------------|---------|
+| **RMSE (validação)**          | 10.28   |
+| **RMSE (teste)**              | 11.38   |
+| **MAE (teste)**               | 4.47    |
+| **R2 (treino)**               | 0.02    |
+| **R2 (validação)**            | 0.02    |
+| **R2 (teste)**                | 0.01    |
+| **Acurácia binária (0/1)**    | 0.54    |
+| **Tempo de treino**           | 0.0126 s|
