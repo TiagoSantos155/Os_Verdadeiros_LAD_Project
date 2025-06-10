@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.linear_model import LinearRegression
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.decomposition import PCA
 import numpy as np
 import os
 import time
@@ -52,27 +53,34 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_val_scaled = scaler.transform(X_val)
 X_test_scaled = scaler.transform(X_test)
 
-# Treinar e avaliar o modelo Linear Regression
+# Aplicar PCA (redução de dimensionalidade)
+n_components = 2
+pca = PCA(n_components=n_components, svd_solver='auto', random_state=42)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_val_pca = pca.transform(X_val_scaled)
+X_test_pca = pca.transform(X_test_scaled)
+
+# Treinar e avaliar o modelo Linear Regression usando PCA
 fit_start = time.time()
 linreg = LinearRegression()
-linreg.fit(X_train_scaled, y_train)
+linreg.fit(X_train_pca, y_train)
 fit_end = time.time()
 train_time = fit_end - fit_start
 
 # Avaliar no conjunto de validação
-y_val_pred = linreg.predict(X_val_scaled)
+y_val_pred = linreg.predict(X_val_pca)
 val_rmse = mean_squared_error(y_val, y_val_pred) ** 0.5  # Remover 'squared' para compatibilidade
 val_mae = mean_absolute_error(y_val, y_val_pred)
 val_r2 = r2_score(y_val, y_val_pred)
 
 # Avaliar no conjunto de teste
-y_pred = linreg.predict(X_test_scaled)
+y_pred = linreg.predict(X_test_pca)
 rmse = mean_squared_error(y_test, y_pred) ** 0.5  # Remover 'squared' para compatibilidade
 mae = mean_absolute_error(y_test, y_pred)
 r2 = r2_score(y_test, y_pred)
 
 # Avaliar acurácia (R2) nos três conjuntos
-train_pred = linreg.predict(X_train_scaled)
+train_pred = linreg.predict(X_train_pca)
 train_r2 = r2_score(y_train, train_pred)
 val_r2 = r2_score(y_val, y_val_pred)
 test_r2 = r2_score(y_test, y_pred)

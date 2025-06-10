@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.linear_model import Lasso
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.decomposition import PCA
 import numpy as np
 import os
 import time
@@ -37,8 +38,8 @@ X.loc[:, 'release_date'] = pd.to_datetime(X['release_date'], errors='coerce').ma
 )
 
 # Split
-X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=69)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=69)
 
 # Normalizar
 scaler = StandardScaler()
@@ -46,17 +47,24 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_val_scaled = scaler.transform(X_val)
 X_test_scaled = scaler.transform(X_test)
 
+# Aplicar PCA diretamente aqui (remover import e uso de apply_pca)
+n_components = 2
+pca = PCA(n_components=n_components, svd_solver='auto', random_state=69)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_val_pca = pca.transform(X_val_scaled)
+X_test_pca = pca.transform(X_test_scaled)
+
 alphas = [0.01, 0.1, 1, 10, 100]
 results = []
 
 for alpha in alphas:
     fit_start = time.time()
     lasso = Lasso(alpha=alpha, max_iter=10000)
-    lasso.fit(X_train_scaled, y_train)
+    lasso.fit(X_train_pca, y_train)
     fit_end = time.time()
     train_time = fit_end - fit_start
 
-    y_pred = lasso.predict(X_test_scaled)
+    y_pred = lasso.predict(X_test_pca)
     rmse = mean_squared_error(y_test, y_pred) ** 0.5
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)

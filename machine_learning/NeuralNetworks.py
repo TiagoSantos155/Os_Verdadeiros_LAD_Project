@@ -4,6 +4,7 @@ from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.neural_network import MLPRegressor
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
 from sklearn.exceptions import ConvergenceWarning
+from sklearn.decomposition import PCA
 import warnings
 import numpy as np
 import os
@@ -11,6 +12,7 @@ import time
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
+
 
 # Ignorar o aviso de convergência do MLPRegressor
 warnings.filterwarnings("ignore", category=ConvergenceWarning)
@@ -51,16 +53,23 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_val_scaled = scaler.transform(X_val)
 X_test_scaled = scaler.transform(X_test)
 
-results = []
+# Aplicar PCA diretamente aqui (remover import e uso de apply_pca)
+n_components = 2
+pca = PCA(n_components=n_components, svd_solver='auto', random_state=69)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_val_pca = pca.transform(X_val_scaled)
+X_test_pca = pca.transform(X_test_scaled)
+
+results = []  # <-- Adicione esta linha antes de usar results
 
 # Single layer (MLPRegressor com hidden_layer_sizes=(10,))
 fit_start = time.time()
 mlp_single = MLPRegressor(hidden_layer_sizes=(10,), max_iter=200, random_state=69)
-mlp_single.fit(X_train_scaled, y_train)
+mlp_single.fit(X_train_pca, y_train)
 fit_end = time.time()
 train_time_single = fit_end - fit_start
 
-y_pred_single = mlp_single.predict(X_test_scaled)
+y_pred_single = mlp_single.predict(X_test_pca)
 rmse_single = mean_squared_error(y_test, y_pred_single) ** 0.5
 mae_single = mean_absolute_error(y_test, y_pred_single)
 r2_single = r2_score(y_test, y_pred_single)
@@ -70,11 +79,11 @@ results.append(('Single Layer', rmse_single, mae_single, r2_single, train_time_s
 # Multi layer (MLPRegressor com hidden_layer_sizes=(50, 20))
 fit_start = time.time()
 mlp_multi = MLPRegressor(hidden_layer_sizes=(50, 20), max_iter=200, random_state=69)
-mlp_multi.fit(X_train_scaled, y_train)
+mlp_multi.fit(X_train_pca, y_train)
 fit_end = time.time()
 train_time_multi = fit_end - fit_start
 
-y_pred_multi = mlp_multi.predict(X_test_scaled)
+y_pred_multi = mlp_multi.predict(X_test_pca)
 rmse_multi = mean_squared_error(y_test, y_pred_multi) ** 0.5
 mae_multi = mean_absolute_error(y_test, y_pred_multi)
 r2_multi = r2_score(y_test, y_pred_multi)

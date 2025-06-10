@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.tree import DecisionTreeClassifier, export_text, plot_tree
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.decomposition import PCA
 import numpy as np
 import os
 import time
@@ -15,7 +16,7 @@ DATASET_CSV_PATH = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv"
 
 # Carregar os dados
 df = pd.read_csv(DATASET_CSV_PATH)
-df = df.head(50000)
+df = df.head(500000)
 
 cols = ['developers', 'genres', 'eur', 'release_date']
 data = df[cols].copy()
@@ -50,16 +51,26 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_val_scaled = scaler.transform(X_val)
 X_test_scaled = scaler.transform(X_test)
 
+# Aplicar PCA
+n_components = 2
+pca = PCA(n_components=n_components, svd_solver='auto', random_state=69)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_val_pca = pca.transform(X_val_scaled)
+X_test_pca = pca.transform(X_test_scaled)
+
+# Ajustar nomes das features para o número de componentes do PCA
+pca_feature_names = [f'PC{i+1}' for i in range(n_components)]
+
 results = []
 
 # Decision Tree Classifier com profundidade 5 (critério Gini)
 fit_start = time.time()
 dtree_5 = DecisionTreeClassifier(max_depth=5, criterion='gini', random_state=69)
-dtree_5.fit(X_train_scaled, y_train)
+dtree_5.fit(X_train_pca, y_train)
 fit_end = time.time()
 train_time_5 = fit_end - fit_start
 
-y_pred_5 = dtree_5.predict(X_test_scaled)
+y_pred_5 = dtree_5.predict(X_test_pca)
 accuracy_5 = accuracy_score(y_test, y_pred_5)
 precision_5 = precision_score(y_test, y_pred_5, zero_division=0)
 recall_5 = recall_score(y_test, y_pred_5, zero_division=0)
@@ -71,7 +82,7 @@ results.append(('Depth 5', accuracy_5, precision_5, recall_5, f1_5, train_time_5
 plt.figure(figsize=(12, 6))
 plot_tree(
     dtree_5,
-    feature_names=features,
+    feature_names=pca_feature_names,
     filled=True,
     rounded=True,
     max_depth=2,           # Mostra só até profundidade 2 para maior legibilidade
@@ -88,7 +99,7 @@ plt.show()
 plt.figure(figsize=(24, 12))
 plot_tree(
     dtree_5,
-    feature_names=features,
+    feature_names=pca_feature_names,
     filled=True,
     rounded=True,
     max_depth=None,        # Mostra toda a profundidade da árvore
@@ -102,7 +113,7 @@ plt.tight_layout()
 plt.show()
 
 # Exibir texto da árvore (primeiros níveis)
-tree_rules = export_text(dtree_5, feature_names=features, max_depth=3)
+tree_rules = export_text(dtree_5, feature_names=pca_feature_names, max_depth=3)
 print("Regras da árvore (até profundidade 3):")
 print(tree_rules)
 
@@ -138,34 +149,6 @@ def on_closing():
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
-
-# Desenhar várias árvores lado a lado (por exemplo, profundidade 2, 3 e 5)
-from sklearn.tree import DecisionTreeClassifier
-
-depths = [2, 3, 5]
-trees = []
-for d in depths:
-    tree = DecisionTreeClassifier(max_depth=d, criterion='gini', random_state=69)
-    tree.fit(X_train_scaled, y_train)
-    trees.append(tree)
-
-plt.figure(figsize=(18, 5))
-for i, (tree, d) in enumerate(zip(trees, depths)):
-    plt.subplot(1, len(depths), i + 1)
-    plot_tree(
-        tree,
-        feature_names=features,
-        filled=True,
-        rounded=True,
-        max_depth=d,
-        fontsize=8,
-        proportion=True,
-        impurity=True,
-        class_names=["Barato", "Caro"]
-    )
-    plt.title(f"Profundidade {d}")
-plt.tight_layout()
-plt.show()
 
 # O que é o Gini?
 # O índice de Gini é uma métrica usada em árvores de decisão para classificação.

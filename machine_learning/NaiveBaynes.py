@@ -3,12 +3,14 @@ from sklearn.model_selection import train_test_split
 from sklearn.naive_bayes import GaussianNB
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score
+from sklearn.decomposition import PCA
 import matplotlib.pyplot as plt
 import numpy as np
 import os
 import time
 import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
+
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_CSV_PATH = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv")
@@ -40,8 +42,8 @@ for col in features:
     label_encoders[col] = le
 
 # Separar em treino, validação e teste (70% treino, 15% validação, 15% teste)
-X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)  # 0.5 x 0.3 = 0.15
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=69)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=69)  # 0.5 x 0.3 = 0.15
 
 # Normalizar os dados
 scaler = StandardScaler()
@@ -49,14 +51,21 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_val_scaled = scaler.transform(X_val)
 X_test_scaled = scaler.transform(X_test)
 
+# Aplicar PCA diretamente aqui
+n_components = 2
+pca = PCA(n_components=n_components, svd_solver='auto', random_state=69)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_val_pca = pca.transform(X_val_scaled)
+X_test_pca = pca.transform(X_test_scaled)
+
 # Treinar o modelo Naive Bayes e avaliar no conjunto de teste
 fit_start = time.time()
 nb = GaussianNB()
-nb.fit(X_train_scaled, y_train)
+nb.fit(X_train_pca, y_train)
 fit_end = time.time()
 train_time = fit_end - fit_start
 
-y_pred = nb.predict(X_test_scaled)
+y_pred = nb.predict(X_test_pca)
 accuracy = accuracy_score(y_test, y_pred)
 precision = precision_score(y_test, y_pred, zero_division=0)
 recall = recall_score(y_test, y_pred, zero_division=0)

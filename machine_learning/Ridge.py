@@ -3,6 +3,7 @@ from sklearn.model_selection import train_test_split
 from sklearn.preprocessing import LabelEncoder, StandardScaler
 from sklearn.linear_model import Ridge
 from sklearn.metrics import mean_squared_error, mean_absolute_error, r2_score
+from sklearn.decomposition import PCA
 import numpy as np
 import os
 import time
@@ -37,8 +38,8 @@ X.loc[:, 'release_date'] = pd.to_datetime(X['release_date'], errors='coerce').ma
 )
 
 # Split
-X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=42)
-X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=42)
+X_train, X_temp, y_train, y_temp = train_test_split(X, y, test_size=0.3, random_state=69)
+X_val, X_test, y_val, y_test = train_test_split(X_temp, y_temp, test_size=0.5, random_state=69)
 
 # Normalizar
 scaler = StandardScaler()
@@ -46,17 +47,24 @@ X_train_scaled = scaler.fit_transform(X_train)
 X_val_scaled = scaler.transform(X_val)
 X_test_scaled = scaler.transform(X_test)
 
+# Aplicar PCA
+n_components = 2
+pca = PCA(n_components=n_components, svd_solver='auto', random_state=69)
+X_train_pca = pca.fit_transform(X_train_scaled)
+X_val_pca = pca.transform(X_val_scaled)
+X_test_pca = pca.transform(X_test_scaled)
+
 alphas = [0.01, 0.1, 1, 10, 100]
 results = []
 
 for alpha in alphas:
     fit_start = time.time()
     ridge = Ridge(alpha=alpha)
-    ridge.fit(X_train_scaled, y_train)
+    ridge.fit(X_train_pca, y_train)
     fit_end = time.time()
     train_time = fit_end - fit_start
 
-    y_pred = ridge.predict(X_test_scaled)
+    y_pred = ridge.predict(X_test_pca)
     rmse = mean_squared_error(y_test, y_pred) ** 0.5
     mae = mean_absolute_error(y_test, y_pred)
     r2 = r2_score(y_test, y_pred)
@@ -92,9 +100,3 @@ def on_closing():
 
 root.protocol("WM_DELETE_WINDOW", on_closing)
 root.mainloop()
-
-# Por que o modelo ficou pior com mais linhas?
-# - Se as features ('developers', 'genres', 'release_date') não têm relação forte com o preço ('eur'), aumentar o número de linhas só reforça que o modelo não consegue aprender nada útil.
-# - Com poucos dados, pode parecer que o modelo está "acertando" por acaso (overfitting).
-# - Com muitos dados, o modelo mostra a realidade: essas features não explicam bem o preço.
-# - Para melhorar, adicione features mais relevantes (ex: avaliações, popularidade, descontos, etc)
