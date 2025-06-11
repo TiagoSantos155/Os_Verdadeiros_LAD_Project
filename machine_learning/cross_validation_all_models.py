@@ -20,7 +20,7 @@ DATASET_CSV_PATH = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv"
 
 # Carregar dados
 df = pd.read_csv(DATASET_CSV_PATH)
-df = df.head(500000)  # Amostra menor para visualização
+df = df.head(50000)  # Amostra menor para visualização
 
 # Selecionar features relevantes
 cols = ['developers', 'genres', 'eur', 'release_date']
@@ -55,18 +55,20 @@ y_reg = data['eur']
 
 # Modelos a testar (apenas os que você tem)
 model_builders = {
-    "KMeans": lambda: KMeans(n_clusters=4, random_state=69, n_init=10),
-    "DecisionTreeClassifier": lambda: DecisionTreeClassifier(max_depth=5, random_state=69),
-    "KNN": lambda: KNeighborsClassifier(n_neighbors=5),
-    "LinearRegression": lambda: LinearRegression(),
-    "LogisticRegression": lambda: LogisticRegression(max_iter=1000, random_state=69),
-    "RandomForest": lambda: RandomForestRegressor(n_estimators=10, random_state=69),
-    "Ridge": lambda: Ridge(alpha=1.0),
-    "Lasso": lambda: Lasso(alpha=0.1, max_iter=10000),
+    #"KMeans": lambda: KMeans(n_clusters=4, random_state=69, n_init=10),
+    #"DecisionTreeClassifier": lambda: DecisionTreeClassifier(max_depth=5, random_state=69),
+    #"KNN": lambda: KNeighborsClassifier(n_neighbors=5),
+    #"LinearRegression": lambda: LinearRegression(),
+    #"LogisticRegression": lambda: LogisticRegression(max_iter=1000, random_state=69),
+    #"RandomForest": lambda: RandomForestRegressor(n_estimators=10, random_state=69),
+    #"Ridge": lambda: Ridge(alpha=1.0),
+    #"Lasso": lambda: Lasso(alpha=0.1, max_iter=10000),
     "SVM": lambda: SVC(kernel='rbf', random_state=69),
-    "NaiveBayes": lambda: GaussianNB(),
-    "NeuralNetworks": lambda: MLPRegressor(hidden_layer_sizes=(10,), max_iter=200, random_state=69)
+    #"NaiveBayes": lambda: GaussianNB(),
+    #"NeuralNetworks": lambda: MLPRegressor(hidden_layer_sizes=(10,), max_iter=200, random_state=69)
 }
+
+#Retirar o SVM demora muito FODASE
 
 results = {}
 

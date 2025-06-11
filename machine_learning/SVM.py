@@ -17,7 +17,7 @@ DATASET_CSV_PATH = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv"
 
 # Carregar os dados
 df = pd.read_csv(DATASET_CSV_PATH)
-df = df.head(5000)  # Usar apenas as primeiras 5000 linhas para comparação de kernels
+df = df.head(50000)  # Usar apenas as primeiras 5000 linhas para comparação de kernels
 
 # Selecionar apenas as colunas relevantes
 cols = [
