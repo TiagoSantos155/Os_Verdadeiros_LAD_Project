@@ -212,6 +212,14 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
+    // Preencher géneros selecionados vindos do backend
+    if (window.SELECTED_GENRES_FROM_SERVER) {
+        let genres = window.SELECTED_GENRES_FROM_SERVER.split(',').map(g => g.trim()).filter(g => g);
+        genres.forEach(g => addGenre(g));
+        input.value = '';
+        suggestionsBox.style.display = 'none';
+    }
+
     // Initial render
     renderSelected();
 });

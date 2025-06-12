@@ -34,11 +34,11 @@
                 <form method="post" class="dev-add-game-form" style="margin-top:24px;">
                     <div class="input-group">
                         <label for="title">Título do Jogo:</label>
-                        <input type="text" name="title" id="title" required>
+                        <input type="text" name="title" id="title" required value="{{ title|default('') }}">
                     </div>
                     <div class="input-group">
                         <label for="release_date">Data de Lançamento:</label>
-                        <input type="date" name="release_date" id="release_date" required>
+                        <input type="date" name="release_date" id="release_date" required value="{{ release_date|default('') }}">
                     </div>
                     <div class="input-group">
                         <label>Géneros:</label>
@@ -46,16 +46,16 @@
                             <input type="text" id="genre-search" class="form-control" placeholder="Pesquisar ou adicionar género..." autocomplete="off" style="margin-bottom:8px;">
                             <div id="genre-suggestions" class="genre-suggestions"></div>
                             <div id="selected-genres" class="selected-genres"></div>
-                            <input type="hidden" name="genres" id="genres-hidden">
+                            <input type="hidden" name="genres" id="genres-hidden" value="{{ genres_selected|default('') }}">
                         </div>
                     </div>
-                    <button type="submit" class="login-btn" style="width:100%;margin-top:16px;">Prever Custo</button>
+                    <div style="display:flex;gap:10px;">
+                        <button type="button" id="predict-btn" class="login-btn" style="width:50%;">Prever Custo</button>
+                        <button type="button" id="optimize-btn" class="login-btn" style="width:50%;">Otimizar Preço</button>
+                    </div>
                 </form>
-                {% if predicted_price is not none %}
-                <div class="predicted-price-box" style="margin-top:24px;font-size:1.2em;text-align:center;">
-                    <strong>Preço Previsto:</strong> {{ predicted_price }} €
-                </div>
-                {% endif %}
+                <div id="predicted-price-ajax" class="predicted-price-box" style="margin-top:24px;font-size:1.2em;text-align:center;display:none;"></div>
+                <div id="optimized-price-ajax" class="predicted-price-box" style="margin-top:12px;font-size:1.2em;text-align:center;display:none;"></div>
             </div>
         </section>
     </main>
@@ -65,6 +65,75 @@
     <script src="{{ url_for('static', filename='developer_add_game.js') }}"></script>
     <script>
         window.GENRES_LIST = {{ genres|tojson|safe }};
+        window.SELECTED_GENRES_FROM_SERVER = "{{ genres_selected|default('') }}";
+    </script>
+    <script>
+document.getElementById('predict-btn').onclick = async function() {
+    const title = document.getElementById('title').value;
+    const release_date = document.getElementById('release_date').value;
+    const genres = document.getElementById('genres-hidden').value;
+    const btn = document.getElementById('predict-btn');
+    const priceBox = document.getElementById('predicted-price-ajax');
+    document.getElementById('optimized-price-ajax').style.display = 'none';
+    btn.disabled = true;
+    btn.textContent = 'A prever...';
+    priceBox.style.display = 'none';
+    try {
+        const resp = await fetch('/predict_price_api', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({title, release_date, genres})
+        });
+        if (!resp.ok) throw new Error('Erro de rede ou servidor');
+        const data = await resp.json();
+        btn.disabled = false;
+        btn.textContent = 'Prever Custo';
+        priceBox.style.display = '';
+        if (data.success) {
+            priceBox.innerHTML = `<strong>Preço Previsto:</strong> ${data.predicted_price} €`;
+        } else {
+            priceBox.innerHTML = `<span style="color:#ff4e4e;">Erro ao prever preço: ${data.error || ''}</span>`;
+        }
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Prever Custo';
+        priceBox.style.display = '';
+        priceBox.innerHTML = `<span style="color:#ff4e4e;">Erro ao prever preço (verifica ligação ou backend)</span>`;
+    }
+};
+
+document.getElementById('optimize-btn').onclick = async function() {
+    const title = document.getElementById('title').value;
+    const release_date = document.getElementById('release_date').value;
+    const genres = document.getElementById('genres-hidden').value;
+    const btn = document.getElementById('optimize-btn');
+    const optimizeBox = document.getElementById('optimized-price-ajax');
+    btn.disabled = true;
+    btn.textContent = 'A otimizar...';
+    optimizeBox.style.display = 'none';
+    try {
+        const resp = await fetch('/optimize_price_api', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({title, release_date, genres})
+        });
+        if (!resp.ok) throw new Error('Erro de rede ou servidor');
+        const data = await resp.json();
+        btn.disabled = false;
+        btn.textContent = 'Otimizar Preço';
+        optimizeBox.style.display = '';
+        if (data.success) {
+            optimizeBox.innerHTML = `<strong>Preço Otimizado:</strong> ${data.optimized_price} €`;
+        } else {
+            optimizeBox.innerHTML = `<span style="color:#ff4e4e;">Erro ao otimizar preço: ${data.error || ''}</span>`;
+        }
+    } catch (err) {
+        btn.disabled = false;
+        btn.textContent = 'Otimizar Preço';
+        optimizeBox.style.display = '';
+        optimizeBox.innerHTML = `<span style="color:#ff4e4e;">Erro ao otimizar preço (verifica ligação ou backend)</span>`;
+    }
+};
     </script>
 </body>
 </html>

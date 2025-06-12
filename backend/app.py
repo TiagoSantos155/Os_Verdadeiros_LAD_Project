@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session, flash
+from flask import Flask, render_template, request, redirect, url_for, session, flash, jsonify
 import pandas as pd
 import os
 import requests
@@ -469,6 +469,82 @@ def rate_game():
     save_user_rating(username, gameid, rating, genres)
     return {"success": True}
 
+# Lista de géneros igual à usada no treino do modelo (ajusta conforme necessário)
+ALL_GENRES = [
+    "Action", "Adventure", "RPG", "Strategy", "Simulation", "Sports", "Indie", "Puzzle", "Racing", "Shooter"
+    # ...adiciona todos os géneros usados no treino...
+]
+
+@app.route('/predict_price_api', methods=['POST'])
+def predict_price_api():
+    try:
+        data = request.get_json()
+        title = data.get('title', '')
+        release_date = data.get('release_date', '')
+        genres = data.get('genres', '')
+        # Developer: pedir ao utilizador ou usar placeholder
+        developer = "unknown"  # ou obter do form se existir campo
+        # Géneros: contar quantos foram selecionados
+        genres_selected = [g.strip() for g in genres.split(',') if g.strip()]
+        genres_count = len(genres_selected)
+        # Release date: converter para ordinal (como no treino)
+        try:
+            release_ordinal = pd.to_datetime(release_date, errors='coerce').toordinal()
+        except Exception:
+            release_ordinal = 0
+        # Features: developer length, genres count, release_date ordinal
+        features = [
+            len(developer),      # ou codificação usada no treino
+            genres_count,        # ou codificação usada no treino
+            release_ordinal
+        ]
+        model = load_model('ModeloPiça.pkl')
+        predicted_price = predict_with_model(model, features)
+        return jsonify(success=True, predicted_price=round(predicted_price, 2))
+    except Exception as e:
+        import traceback
+        print("Erro no /predict_price_api:", e)
+        print(traceback.format_exc())
+        return jsonify(success=False, error=str(e))
+
+@app.route('/optimize_price_api', methods=['POST'])
+def optimize_price_api():
+    try:
+        data = request.get_json()
+        title = data.get('title', '')
+        release_date = data.get('release_date', '')
+        genres = data.get('genres', '')
+        developer = "unknown"
+        genres_selected = [g.strip() for g in genres.split(',') if g.strip()]
+        genres_count = len(genres_selected)
+        try:
+            release_ordinal = pd.to_datetime(release_date, errors='coerce').toordinal()
+        except Exception:
+            release_ordinal = 0
+        features = [
+            len(developer),
+            genres_count,
+            release_ordinal
+        ]
+        model = load_model('ModeloPiça.pkl')
+        predicted_price = predict_with_model(model, features)
+        # Otimização dos cêntimos
+        euros = int(predicted_price)
+        cents = predicted_price - euros
+        if cents >= 0.80:
+            cents = 0.99
+        elif cents >= 0.50:
+            cents = 0.79
+        else:
+            cents = 0.49
+        optimized_price = round(euros + cents, 2)
+        return jsonify(success=True, optimized_price=optimized_price)
+    except Exception as e:
+        import traceback
+        print("Erro no /optimize_price_api:", e)
+        print(traceback.format_exc())
+        return jsonify(success=False, error=str(e))
+
 def ensure_ratings_column():
     users_df = pd.read_csv(USERS_CSV_PATH)
     if 'ratings' not in users_df.columns:
@@ -545,45 +621,44 @@ def developer_add_game():
 
     genres_list = get_all_genres()
     predicted_price = None
+    optimized_price = None
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         release_date = request.form.get('release_date', '').strip()
         genres = request.form.get('genres', '').strip()
+        action = request.form.get('action')
         if not title or not release_date or not genres:
             flash("Preencha todos os campos e selecione pelo menos um género.", "error")
-        else:
-            # --- Pré-processamento igual ao treino do modelo ---
-            # Codificar os géneros como no treino
+        elif action == "optimize":
+            # --- Prever preço base ---
+            developer = "unknown"
             genres_selected = [g.strip() for g in genres.split(',') if g.strip()]
-            # Codificar developers (não disponível, usar placeholder ou pedir input)
-            developer_placeholder = "unknown"
-            # Codificar release_date para ordinal
-            release_year = 0
+            genres_count = len(genres_selected)
             try:
-                release_year = pd.to_datetime(release_date, errors='coerce').toordinal()
+                release_ordinal = pd.to_datetime(release_date, errors='coerce').toordinal()
             except Exception:
-                release_year = 0
-            # Codificar developers e géneros como label encoder do treino
-            # Para simplificação, usar apenas length do developer, genres e release_date ordinal
-            # Se quiseres igual ao treino, tens de guardar os label_encoders e scaler do treino e carregar aqui!
-            # Aqui está um exemplo simples:
+                release_ordinal = 0
             features = [
-                len(developer_placeholder),  # developers
-                len(genres_selected),       # genres (ou usar label encoder)
-                release_year                # release_date ordinal
+                len(developer),
+                genres_count,
+                release_ordinal
             ]
-            # Carregar modelo e prever
             model = load_model('ModeloPiça.pkl')
             predicted_price = predict_with_model(model, features)
-            # Ajustar para não dar valores negativos
-            if predicted_price < 0:
-                predicted_price = 0.0
+            # --- Otimização do preço ---
+            if predicted_price >= 0.80:
+                optimized_price = 0.99
+            elif predicted_price >= 0.50:
+                optimized_price = 0.79
+            else:
+                optimized_price = 0.49
+            flash(f"Preço otimizado sugerido: {optimized_price:.2f} € (preço previsto: {predicted_price:.2f} €)", "success")
 
     return render_template(
         'developer_add_game.html',
         genres=genres_list,
-        predicted_price=round(predicted_price, 2) if predicted_price is not None else None
+        predicted_price=optimized_price if optimized_price is not None else None
     )
 
 # Certifica que a coluna 'ratings' existe no users.csv
