@@ -27,20 +27,50 @@
             <h1 class="welcome-title" style="font-family:'Orbitron',Arial,sans-serif;">Painel do Developer</h1>
             <div class="dev-buttons-container">
                 {% for btn in buttons %}
-                    <button class="dev-btn" onclick="showImage('{{ btn.img }}')">{{ btn.label }}</button>
+                    <button class="dev-btn" onclick="showImage('{{ btn.img }}', '{{ btn.id }}')">{{ btn.label }}</button>
                 {% endfor %}
             </div>
-            <div class="dev-image-container">
+            <div class="dev-image-container" style="display: flex; flex-direction: column; align-items: center;">
                 <img id="dev-image" class="dev-img" src="" style="display:none;" alt="Imagem do developer">
+                <!-- Text boxes explicativas para cada gráfico -->
+                <div id="dev-text-btn1" class="dev-textbox" style="display:none; margin-top:10px; max-width: 600px;">
+                    <strong>Preço vs Popularidade:</strong> Este gráfico mostra a relação entre o preço dos jogos e a sua popularidade, permitindo analisar se jogos mais caros tendem a ser mais populares ou não.
+                </div>
+                <div id="dev-text-btn2" class="dev-textbox" style="display:none; margin-top:10px; max-width: 600px;">
+                    <strong>Top10 Developers:</strong> Este gráfico apresenta os 10 developers mais populares na plataforma, com base no número de jogos lançados ou popularidade dos seus jogos.
+                </div>
+                <div id="dev-text-btn3" class="dev-textbox" style="display:none; margin-top:10px; max-width: 600px;">
+                    <strong>Países com mais jogadores:</strong> Visualiza os países com maior número de jogadores na plataforma, útil para identificar mercados mais ativos.
+                </div>
+                <div id="dev-text-btn4" class="dev-textbox" style="display:none; margin-top:10px; max-width: 600px;">
+                    <strong>Jogos mais caros:</strong> Lista os jogos com os preços mais elevados disponíveis na plataforma.
+                </div>
+                <div id="dev-text-btn5" class="dev-textbox" style="display:none; margin-top:10px; max-width: 600px;">
+                    <strong>Jogos mais jogados:</strong> Mostra os jogos com maior número de jogadores ou horas jogadas, indicando os títulos mais populares.
+                </div>
+                <div id="dev-text-btn6" class="dev-textbox" style="display:none; margin-top:10px; max-width: 600px;">
+                    <strong>Jogos mais lucrativos:</strong> Exibe os jogos que geraram mais receita, combinando preço e popularidade.
+                </div>
             </div>
         </section>
     </main>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        function showImage(imgUrl) {
+        function showImage(imgUrl, btnId) {
             var img = document.getElementById('dev-image');
             img.src = imgUrl;
             img.style.display = 'block';
+
+            // Esconde todas as textboxes
+            var textboxes = document.getElementsByClassName('dev-textbox');
+            for (var i = 0; i < textboxes.length; i++) {
+                textboxes[i].style.display = 'none';
+            }
+            // Mostra a textbox correspondente ao botão
+            var textbox = document.getElementById('dev-text-' + btnId);
+            if (textbox) {
+                textbox.style.display = 'block';
+            }
         }
     </script>
     <footer class="steam-footer">
