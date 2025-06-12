@@ -192,6 +192,12 @@ body {
     transition: background 0.2s, border 0.2s, color 0.2s;
     font-size: 1em;
     user-select: none;
+    margin-bottom: 6px;
+}
+
+.genre-checkbox-label.selected {
+    background: #0dcaf0;
+    color: #23272b;
     border: 2px solid #0dcaf0;
     font-weight: bold;
 }
