@@ -42,13 +42,11 @@
                     </div>
                     <div class="input-group">
                         <label>Géneros:</label>
-                        <div class="genre-checkbox-group">
-                            {% for genre in genres %}
-                            <label class="genre-checkbox-label">
-                                <input type="checkbox" name="genres" value="{{ genre }}">
-                                {{ genre }}
-                            </label>
-                            {% endfor %}
+                        <div id="genre-dynamic-select">
+                            <input type="text" id="genre-search" class="form-control" placeholder="Pesquisar ou adicionar género..." autocomplete="off" style="margin-bottom:8px;">
+                            <div id="genre-suggestions" class="genre-suggestions"></div>
+                            <div id="selected-genres" class="selected-genres"></div>
+                            <input type="hidden" name="genres" id="genres-hidden">
                         </div>
                     </div>
                     <button type="submit" class="login-btn" style="width:100%;margin-top:16px;">Prever Custo</button>
@@ -65,5 +63,8 @@
         &copy; RealGames - A tua plataforma de recomendações by Os Verdadeiros
     </footer>
     <script src="{{ url_for('static', filename='developer_add_game.js') }}"></script>
+    <script>
+    window.GENRES_LIST = {{ genres|tojson|safe }};
+    </script>
 </body>
 </html>
