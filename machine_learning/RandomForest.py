@@ -18,7 +18,7 @@ DATASET_CSV_PATH = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv"
 
 # Carregar os dados
 df = pd.read_csv(DATASET_CSV_PATH)
-df = df.head(50000)
+df = df.head(500000)
 
 # Remover outliers do target (eur) usando IQR
 Q1 = df['eur'].quantile(0.25)
@@ -86,6 +86,16 @@ print(f'Tempo de treino (fit): {train_time:.4f} segundos')
 MODEL_SAVE_PATH = os.path.join(BASE_DIR, "../Modelos/random_forest_model.pkl")
 joblib.dump(rf, MODEL_SAVE_PATH)
 print(f"Modelo Random Forest guardado em: {MODEL_SAVE_PATH}")
+
+# Guardar os encoders e scaler usados no treino
+ENCODERS_SAVE_PATH = os.path.join(BASE_DIR, "../Modelos/random_forest_encoders.pkl")
+encoders_scaler = {
+    "label_encoders": label_encoders,
+    "scaler": scaler,
+    "features": features
+}
+joblib.dump(encoders_scaler, ENCODERS_SAVE_PATH)
+print(f"Encoders e scaler guardados em: {ENCODERS_SAVE_PATH}")
 
 # Exibir gráfico de importância das features originais usando Tkinter
 root = tk.Tk()

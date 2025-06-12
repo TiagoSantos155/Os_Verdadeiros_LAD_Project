@@ -7,6 +7,7 @@ from functools import lru_cache
 import numpy as np
 import warnings
 import sys
+import joblib
 
 app = Flask(__name__)
 app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
@@ -31,6 +32,59 @@ TOP10_NAMES = [
 
 sys.path.append(os.path.join(os.path.dirname(__file__), '../Modelos'))
 from predict_price import load_model, predict_with_model
+
+# Caminho para os encoders/scaler do Random Forest
+RF_ENCODERS_PATH = os.path.join(BASE_DIR, "../Modelos/random_forest_encoders.pkl")
+RF_MODEL_PATH = os.path.join(BASE_DIR, "../Modelos/random_forest_model.pkl")
+
+def rf_predict_price(developer, genres, release_date):
+    rf = joblib.load(RF_MODEL_PATH)
+    encoders_scaler = joblib.load(RF_ENCODERS_PATH)
+    label_encoders = encoders_scaler["label_encoders"]
+    scaler = encoders_scaler["scaler"]
+    features = encoders_scaler["features"]
+
+    dev_val = developer
+
+    # Garante que cada género está limpo e monta a string no formato do dataset
+    genres_clean = [g.strip() for g in genres if g.strip()]
+    if len(genres_clean) == 1:
+        genres_val = f"['{genres_clean[0]}']"
+    else:
+        genres_val = "[" + ", ".join(f"'{g}'" for g in genres_clean) + "]"
+
+    release_val = pd.to_datetime(release_date, errors='coerce')
+    release_ord = release_val.toordinal() if pd.notnull(release_val) else 0
+
+    dev_encoded = label_encoders['developers'].transform([dev_val])[0] if dev_val in label_encoders['developers'].classes_ else 0
+
+    # Tenta prever para a combinação, senão tenta para cada género individual (no formato do encoder)
+    if genres_val in label_encoders['genres'].classes_:
+        genres_encoded = label_encoders['genres'].transform([genres_val])[0]
+        X = [[dev_encoded, genres_encoded, release_ord]]
+        X_scaled = scaler.transform(X)
+        pred = rf.predict(X_scaled)[0]
+        if pred < 1:
+            pred = 0
+        return float(pred)
+    else:
+        preds = []
+        for g in genres_clean:
+            g_val = f"['{g}']"
+            if g_val in label_encoders['genres'].classes_:
+                genres_encoded = label_encoders['genres'].transform([g_val])[0]
+                X = [[dev_encoded, genres_encoded, release_ord]]
+                X_scaled = scaler.transform(X)
+                pred = rf.predict(X_scaled)[0]
+                if pred < 1:
+                    pred = 0
+                preds.append(float(pred))
+        if preds:
+            return float(np.mean(preds))
+        raise ValueError(
+            f"A combinação de géneros '{genres_val}' não existe no modelo. "
+            f"Géneros disponíveis: {list(label_encoders['genres'].classes_)}"
+        )
 
 @lru_cache(maxsize=2048)
 def get_game_image_cached(gameid):
@@ -482,25 +536,12 @@ def predict_price_api():
         title = data.get('title', '')
         release_date = data.get('release_date', '')
         genres = data.get('genres', '')
-        # Developer: pedir ao utilizador ou usar placeholder
-        developer = "unknown"  # ou obter do form se existir campo
-        # Géneros: contar quantos foram selecionados
+        developer = "unknown"
         genres_selected = [g.strip() for g in genres.split(',') if g.strip()]
-        genres_count = len(genres_selected)
-        # Release date: converter para ordinal (como no treino)
-        try:
-            release_ordinal = pd.to_datetime(release_date, errors='coerce').toordinal()
-        except Exception:
-            release_ordinal = 0
-        # Features: developer length, genres count, release_date ordinal
-        features = [
-            len(developer),      # ou codificação usada no treino
-            genres_count,        # ou codificação usada no treino
-            release_ordinal
-        ]
-        model = load_model('ModeloPiça.pkl')
-        predicted_price = predict_with_model(model, features)
+        predicted_price = rf_predict_price(developer, genres_selected, release_date)
         return jsonify(success=True, predicted_price=round(predicted_price, 2))
+    except ValueError as ve:
+        return jsonify(success=False, error=str(ve))
     except Exception as e:
         import traceback
         print("Erro no /predict_price_api:", e)
@@ -516,19 +557,7 @@ def optimize_price_api():
         genres = data.get('genres', '')
         developer = "unknown"
         genres_selected = [g.strip() for g in genres.split(',') if g.strip()]
-        genres_count = len(genres_selected)
-        try:
-            release_ordinal = pd.to_datetime(release_date, errors='coerce').toordinal()
-        except Exception:
-            release_ordinal = 0
-        features = [
-            len(developer),
-            genres_count,
-            release_ordinal
-        ]
-        model = load_model('ModeloPiça.pkl')
-        predicted_price = predict_with_model(model, features)
-        # Otimização dos cêntimos
+        predicted_price = rf_predict_price(developer, genres_selected, release_date)
         euros = int(predicted_price)
         cents = predicted_price - euros
         if cents >= 0.80:
@@ -539,6 +568,8 @@ def optimize_price_api():
             cents = 0.49
         optimized_price = round(euros + cents, 2)
         return jsonify(success=True, optimized_price=optimized_price)
+    except ValueError as ve:
+        return jsonify(success=False, error=str(ve))
     except Exception as e:
         import traceback
         print("Erro no /optimize_price_api:", e)
@@ -631,28 +662,23 @@ def developer_add_game():
         if not title or not release_date or not genres:
             flash("Preencha todos os campos e selecione pelo menos um género.", "error")
         elif action == "optimize":
-            # --- Prever preço base ---
+            # --- Prever preço base usando Random Forest ---
             developer = "unknown"
             genres_selected = [g.strip() for g in genres.split(',') if g.strip()]
-            genres_count = len(genres_selected)
             try:
-                release_ordinal = pd.to_datetime(release_date, errors='coerce').toordinal()
-            except Exception:
-                release_ordinal = 0
-            features = [
-                len(developer),
-                genres_count,
-                release_ordinal
-            ]
-            model = load_model('ModeloPiça.pkl')
-            predicted_price = predict_with_model(model, features)
+                predicted_price = rf_predict_price(developer, genres_selected, release_date)
+            except Exception as e:
+                predicted_price = 0
             # --- Otimização do preço ---
-            if predicted_price >= 0.80:
-                optimized_price = 0.99
-            elif predicted_price >= 0.50:
-                optimized_price = 0.79
+            euros = int(predicted_price)
+            cents = predicted_price - euros
+            if cents >= 0.80:
+                cents = 0.99
+            elif cents >= 0.50:
+                cents = 0.79
             else:
-                optimized_price = 0.49
+                cents = 0.49
+            optimized_price = round(euros + cents, 2)
             flash(f"Preço otimizado sugerido: {optimized_price:.2f} € (preço previsto: {predicted_price:.2f} €)", "success")
 
     return render_template(
