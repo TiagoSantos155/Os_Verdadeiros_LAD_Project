@@ -91,7 +91,10 @@ axs[1].set_title('Silhouette Score')
 axs[1].set_xlabel('Número de clusters')
 axs[1].set_ylabel('Silhouette')
 
+#Desativar o Modo 3D quando acima de 50000 Linhas
 # 3D scatter plot dos clusters KMeans
+
+#
 scatter3d = axs[2].scatter(
     X_pca_3d[:, 0], X_pca_3d[:, 1], X_pca_3d[:, 2],
     c=labels_kmeans, cmap='tab10', s=8, antialiased=False  # pontos menores e sem antialiasing
@@ -100,6 +103,8 @@ axs[2].set_title(f'KMeans Clusters 3D (k={optimal_k})')
 axs[2].set_xlabel('PC1')
 axs[2].set_ylabel('PC2')
 axs[2].set_zlabel('PC3')
+#
+
 
 # KMeans scatter 2D
 scatter = axs[3].scatter(

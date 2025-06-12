@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, redirect, url_for, session
+from flask import Flask, render_template, request, redirect, url_for, session, flash
 import pandas as pd
 import os
 import requests
@@ -533,6 +533,33 @@ def library():
                     "img": get_game_image_cached(int(gid))
                 })
     return render_template('biblioteca.html', username=username, games=games)
+
+@app.route('/developer-add-game', methods=['GET', 'POST'])
+def developer_add_game():
+    if 'dev_username' not in session:
+        return redirect(url_for('developer_login'))
+
+    # Usar os géneros do simpleDataSet, igual ao select_genres
+    genres_list = get_all_genres()
+    predicted_price = None
+
+    if request.method == 'POST':
+        title = request.form.get('title', '').strip()
+        release_date = request.form.get('release_date', '').strip()
+        genres = request.form.getlist('genres')
+        if not title or not release_date or not genres:
+            flash("Preencha todos os campos e selecione pelo menos um género.", "error")
+        else:
+            # Aqui você pode chamar o modelo de machine learning para prever o custo
+            # Exemplo: predicted_price = predict_price(title, release_date, genres)
+            # Para já, apenas simula
+            predicted_price = 9.99  # Placeholder
+
+    return render_template(
+        'developer_add_game.html',
+        genres=genres_list,
+        predicted_price=predicted_price
+    )
 
 # Certifica que a coluna 'ratings' existe no users.csv
 def ensure_ratings_column():
