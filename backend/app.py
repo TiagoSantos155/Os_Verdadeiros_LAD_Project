@@ -6,6 +6,7 @@ import json
 from functools import lru_cache
 import numpy as np
 import warnings
+import sys
 
 app = Flask(__name__)
 app.secret_key = 'um_segredo_simples'  # Necessário para usar sessão
@@ -27,6 +28,9 @@ TOP10_NAMES = [
     "Grand Theft Auto V",
     "VR HOT"
 ]
+
+sys.path.append(os.path.join(os.path.dirname(__file__), '../Modelos'))
+from predict_price import load_model, predict_with_model
 
 @lru_cache(maxsize=2048)
 def get_game_image_cached(gameid):
@@ -539,26 +543,47 @@ def developer_add_game():
     if 'dev_username' not in session:
         return redirect(url_for('developer_login'))
 
-    # Usar os géneros do simpleDataSet, igual ao select_genres
     genres_list = get_all_genres()
     predicted_price = None
 
     if request.method == 'POST':
         title = request.form.get('title', '').strip()
         release_date = request.form.get('release_date', '').strip()
-        genres = request.form.getlist('genres')
+        genres = request.form.get('genres', '').strip()
         if not title or not release_date or not genres:
             flash("Preencha todos os campos e selecione pelo menos um género.", "error")
         else:
-            # Aqui você pode chamar o modelo de machine learning para prever o custo
-            # Exemplo: predicted_price = predict_price(title, release_date, genres)
-            # Para já, apenas simula
-            predicted_price = 9.99  # Placeholder
+            # --- Pré-processamento igual ao treino do modelo ---
+            # Codificar os géneros como no treino
+            genres_selected = [g.strip() for g in genres.split(',') if g.strip()]
+            # Codificar developers (não disponível, usar placeholder ou pedir input)
+            developer_placeholder = "unknown"
+            # Codificar release_date para ordinal
+            release_year = 0
+            try:
+                release_year = pd.to_datetime(release_date, errors='coerce').toordinal()
+            except Exception:
+                release_year = 0
+            # Codificar developers e géneros como label encoder do treino
+            # Para simplificação, usar apenas length do developer, genres e release_date ordinal
+            # Se quiseres igual ao treino, tens de guardar os label_encoders e scaler do treino e carregar aqui!
+            # Aqui está um exemplo simples:
+            features = [
+                len(developer_placeholder),  # developers
+                len(genres_selected),       # genres (ou usar label encoder)
+                release_year                # release_date ordinal
+            ]
+            # Carregar modelo e prever
+            model = load_model('ModeloPiça.pkl')
+            predicted_price = predict_with_model(model, features)
+            # Ajustar para não dar valores negativos
+            if predicted_price < 0:
+                predicted_price = 0.0
 
     return render_template(
         'developer_add_game.html',
         genres=genres_list,
-        predicted_price=predicted_price
+        predicted_price=round(predicted_price, 2) if predicted_price is not None else None
     )
 
 # Certifica que a coluna 'ratings' existe no users.csv

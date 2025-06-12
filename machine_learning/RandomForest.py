@@ -11,6 +11,7 @@ import tkinter as tk
 from matplotlib.backends.backend_tkagg import FigureCanvasTkAgg
 import matplotlib.pyplot as plt
 import tkinter.ttk as ttk
+import joblib
 
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 DATASET_CSV_PATH = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv")
@@ -80,6 +81,11 @@ print(f'RMSE no teste: {rmse:.2f}')
 print(f'MAE no teste: {mae:.2f}')
 print(f'R2 no teste: {r2:.2f}')
 print(f'Tempo de treino (fit): {train_time:.4f} segundos')
+
+# Guardar o modelo treinado como .pkl na pasta Modelos
+MODEL_SAVE_PATH = os.path.join(BASE_DIR, "../Modelos/random_forest_model.pkl")
+joblib.dump(rf, MODEL_SAVE_PATH)
+print(f"Modelo Random Forest guardado em: {MODEL_SAVE_PATH}")
 
 # Exibir gráfico de importância das features originais usando Tkinter
 root = tk.Tk()
