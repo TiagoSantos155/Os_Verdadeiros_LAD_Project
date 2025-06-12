@@ -173,6 +173,102 @@ body {
     letter-spacing: 1px;
 }
 
+.genre-checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.genre-checkbox-label {
+    display: flex;
+    align-items: center;
+    background: #23272b;
+    color: #fff;
+    border-radius: 20px;
+    padding: 6px 16px;
+    cursor: pointer;
+    border: 2px solid transparent;
+    transition: background 0.2s, border 0.2s, color 0.2s;
+    font-size: 1em;
+    user-select: none;
+    border: 2px solid #0dcaf0;
+    font-weight: bold;
+}
+
+.genre-checkbox-label input[type="checkbox"] {
+    display: none;
+}
+
+#genre-dynamic-select {
+    position: relative;
+    width: 100%;
+}
+
+.genre-suggestions {
+    position: absolute;
+    background: #23272e;
+    border-radius: 6px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    z-index: 10;
+    width: 100%;
+    max-height: 140px;
+    overflow-y: auto;
+    margin-top: -2px;
+    display: none;
+}
+
+.genre-suggestion-item {
+    padding: 8px 14px;
+    cursor: pointer;
+    color: #b8c0cc;
+    transition: background 0.15s;
+}
+
+.genre-suggestion-item:hover, .genre-suggestion-item.active {
+    background: #0dcaf0;
+    color: #23272b;
+}
+
+.selected-genres {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-top: 6px;
+    min-height: 32px;
+}
+
+.genre-chip {
+    background: #0dcaf0;
+    color: #23272b;
+    border-radius: 16px;
+    padding: 4px 14px 4px 10px;
+    font-size: 1em;
+    display: flex;
+    align-items: center;
+    font-weight: 500;
+    margin-bottom: 4px;
+    user-select: none;
+    transition: background 0.15s;
+}
+
+.genre-chip .remove-genre {
+    margin-left: 8px;
+    color: #23272b;
+    background: none;
+    border: none;
+    font-size: 1.1em;
+    cursor: pointer;
+    font-weight: bold;
+    line-height: 1;
+    padding: 0 2px;
+    transition: color 0.15s;
+}
+
+.genre-chip .remove-genre:hover {
+    color: #ff4e4e;
+}
+
 @media (max-width: 600px) {
     .steam-card {
         padding: 18px 6px 12px 6px;
