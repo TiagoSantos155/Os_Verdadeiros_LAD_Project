@@ -1,29 +1,30 @@
 # Comparação de Modelos de Machine Learning
 
-**Amostra:**  
-- **500.000 linhas** do dataset  
-- **Divisão:** 70% treino, 15% validação, 15% teste  
-- **Features utilizadas:** `developers`, `genres`, `eur`, `release_date`
+**Amostra:**
+
+* **500.000 linhas** do dataset
+* **Divisão:** 70% treino, 15% validação, 15% teste
+* **Features utilizadas:** `developers`, `genres`, `eur`, `release_date`
 
 ---
 
 ## Resultados - KNN
 
-| Métrica                | Valor      |
-|------------------------|------------|
-| **Número ótimo de k**  | 3          |
-| **Acurácia (teste)**   | 0.95       |
-| **Precisão**           | 0.96       |
-| **Recall**             | 0.95       |
-| **F1-score**           | 0.95       |
-| **Tempo de treino**    | 0.2210 s   |
+| Métrica               | Valor    |
+| --------------------- | -------- |
+| **Número ótimo de k** | 3        |
+| **Acurácia (teste)**  | 0.95     |
+| **Precisão**          | 0.96     |
+| **Recall**            | 0.95     |
+| **F1-score**          | 0.95     |
+| **Tempo de treino**   | 0.2210 s |
 
 <details>
 <summary>Detalhes do processo</summary>
 
-- Progresso: 20/20  
-- Tempo total: 94.7 s  
-- Estimado restante: 0.0 s  
+* Progresso: 20/20
+* Tempo total: 94.7 s
+* Estimado restante: 0.0 s
 
 </details>
 
@@ -31,40 +32,40 @@
 
 ## Resultados - Naive Bayes
 
-| Métrica                | Valor      |
-|------------------------|------------|
-| **Acurácia (teste)**   | 0.56       |
-| **Precisão**           | 0.55       |
-| **Recall**             | 0.64       |
-| **F1-score**           | 0.59       |
-| **Tempo de treino**    | 0.0260 s   |
+| Métrica              | Valor    |
+| -------------------- | -------- |
+| **Acurácia (teste)** | 0.56     |
+| **Precisão**         | 0.55     |
+| **Recall**           | 0.64     |
+| **F1-score**         | 0.59     |
+| **Tempo de treino**  | 0.0260 s |
 
 ---
 
-
-#Aviso No  modelo SVM usamos apenas 5000 linhas
 ## Resultados - SVM
 
+### Sem PCA (5.000 linhas)
+
 | Kernel | Acurácia | Precisão | Recall | F1-score | Tempo de treino (s) |
-|--------|----------|----------|--------|----------|---------------------|
+| ------ | -------- | -------- | ------ | -------- | ------------------- |
 | linear | 0.57     | 0.55     | 0.73   | 0.63     | 14.6887             |
 | rbf    | 0.60     | 0.57     | 0.90   | 0.70     | 19.4696             |
 | poly   | 0.58     | 0.55     | 0.97   | 0.70     | 16.9970             |
 
-**Kernel mais rápido:** linear (14.6887 segundos)
+### Com PCA
 
-Acurácia no conjunto de teste: 0.58  
-Precisão: 0.55  
-Recall: 0.97  
-F1-score: 0.70  
-Tempo de treino (fit): 16.9970 segundos
+| Kernel | Acurácia | Precisão | Recall | F1-score | Tempo de treino (s) |
+| ------ | -------- | -------- | ------ | -------- | ------------------- |
+| linear | 0.58     | 0.57     | 0.66   | 0.61     | 0.2864              |
+| rbf    | 0.59     | 0.56     | 0.88   | 0.68     | 0.2467              |
+| poly   | 0.58     | 0.55     | 0.88   | 0.68     | 0.1536              |
 
 ---
 
 ## Resultados - Logistic Regression
 
-| Métrica                | Valor      |
-|------------------------|------------|
+| Métrica                  | Valor    |
+| ------------------------ | -------- |
 | **Acurácia (validação)** | 0.56     |
 | **Acurácia (teste)**     | 0.56     |
 | **Precisão**             | 0.55     |
@@ -72,67 +73,82 @@ Tempo de treino (fit): 16.9970 segundos
 | **F1-score**             | 0.57     |
 | **Tempo de treino**      | 0.0930 s |
 
+---
+
 ## Resultados - Linear Regression
 
-| Métrica                       | Valor   |
-|-------------------------------|---------|
-| **RMSE (validação)**          | 10.28   |
-| **RMSE (teste)**              | 11.38   |
-| **MAE (teste)**               | 4.47    |
-| **R2 (treino)**               | 0.02    |
-| **R2 (validação)**            | 0.02    |
-| **R2 (teste)**                | 0.01    |
-| **Acurácia binária (0/1)**    | 0.54    |
-| **Tempo de treino**           | 0.0126 s |
+| Métrica                    | Valor    |
+| -------------------------- | -------- |
+| **RMSE (validação)**       | 10.25    |
+| **RMSE (teste)**           | 11.36    |
+| **MAE (teste)**            | 4.39     |
+| **R2 (treino)**            | 0.01     |
+| **R2 (validação)**         | 0.01     |
+| **R2 (teste)**             | 0.01     |
+| **Acurácia binária (0/1)** | 0.53     |
+| **Tempo de treino**        | 0.0411 s |
 
-## Resultados - Neural Networks (Regressor)
+---
 
-|                | **Single Layer** | **Multi Layer** |
-|----------------|:----------------:|:---------------:|
-| **RMSE (teste)**    | 9.45             | 9.31            |
-| **MAE (teste)**     | 4.16             | 4.15            |
-| **R2 (teste)**      | 0.03             | 0.06            |
-| **Tempo de treino** | 76.70 s          | 338.12 s        |
+## Resultados - Neural Networks (com PCA)
 
-## Resultados - Ridge Regression
+| Modelo       | RMSE | MAE  | R²   | Tempo de Treino |
+| ------------ | ---- | ---- | ---- | --------------- |
+| Single Layer | 9.48 | 4.24 | 0.02 | 28.81 s         |
+| Multi Layer  | 9.35 | 4.27 | 0.05 | 623.97 s        |
 
-| Alpha | RMSE (teste) | MAE (teste) | R2 (teste) | Tempo de treino |
-|-------|--------------|-------------|------------|-----------------|
-| 0.01  | 11.34        | 4.32        | 0.01       | 0.0344 s        |
-| 0.1   | 11.34        | 4.32        | 0.01       | 0.0179 s        |
-| 1     | 11.34        | 4.32        | 0.01       | 0.0168 s        |
-| 10    | 11.34        | 4.32        | 0.01       | 0.0187 s        |
-| 100   | 11.34        | 4.32        | 0.01       | 0.0168 s        |
+---
 
-## Resultados - Lasso Regression
+## Resultados - Ridge Regression (com PCA)
 
-| Alpha | RMSE (teste) | MAE (teste) | R2 (teste) | Tempo de treino |
-|-------|--------------|-------------|------------|-----------------|
-| 0.01  | 11.34        | 4.32        | 0.01       | 0.0373 s        |
-| 0.1   | 11.34        | 4.33        | 0.01       | 0.0193 s        |
-| 1     | 11.38        | 4.48        | 0.01       | 0.0171 s        |
-| 10    | 11.42        | 4.54        | -0.00      | 0.0157 s        |
-| 100   | 11.42        | 4.54        | -0.00      | 0.0171 s        |
+| Alpha | RMSE | MAE  | R²   | Tempo de treino |
+| ----- | ---- | ---- | ---- | --------------- |
+| 0.01  | 9.52 | 4.35 | 0.02 | 0.0165 s        |
+| 0.1   | 9.52 | 4.35 | 0.02 | 0.0090 s        |
+| 1     | 9.52 | 4.35 | 0.02 | 0.0095 s        |
+| 10    | 9.52 | 4.35 | 0.02 | 0.0085 s        |
+| 100   | 9.52 | 4.35 | 0.02 | 0.0082 s        |
+
+---
+
+## Resultados - Lasso Regression (com PCA)
+
+| Alpha | RMSE | MAE  | R²    | Tempo de treino |
+| ----- | ---- | ---- | ----- | --------------- |
+| 0.01  | 9.52 | 4.35 | 0.02  | 0.0229 s        |
+| 0.1   | 9.52 | 4.35 | 0.02  | 0.0076 s        |
+| 1     | 9.55 | 4.43 | 0.01  | 0.0085 s        |
+| 10    | 9.59 | 4.50 | -0.00 | 0.0085 s        |
+| 100   | 9.59 | 4.50 | -0.00 | 0.0085 s        |
 
 ---
 
 ## Resultados - Decision Trees (Regressor)
 
-|                | **Depth 5** | **Depth 20** |
-|----------------|:-----------:|:------------:|
-| **RMSE (teste)**    | 9.07        | 4.78         |
-| **MAE (teste)**     | 4.14        | 2.31         |
-| **R2 (teste)**      | 0.11        | 0.75         |
-| **Tempo de treino** | 0.2221 s    | 0.6871 s     |
+|           | Depth 5  | Depth 20 |
+| --------- | -------- | -------- |
+| **RMSE**  | 9.07     | 4.78     |
+| **MAE**   | 4.14     | 2.31     |
+| **R²**    | 0.11     | 0.75     |
+| **Tempo** | 0.2221 s | 0.6871 s |
 
-## Resultados - Random Forest (Regressor)
+---
 
-| Métrica                | Valor      |
-|------------------------|------------|
-| **RMSE (teste)**       | 4.03       |
-| **MAE (teste)**        | 0.25       |
-| **R2 (teste)**         | 0.88       |
-| **Tempo de treino**    | 9.9996 s   |
+## Resultados - Random Forest
+
+**Com PCA:**
+
+* RMSE: 7.19
+* MAE: 3.80
+* R²: 0.28
+* Tempo de treino: 0.84 s
+
+**Sem PCA (final):**
+
+* RMSE: 1.74
+* MAE: 0.25
+* R²: 0.97
+* Tempo de treino: 9.5604 s
 
 ---
 
@@ -140,28 +156,29 @@ Tempo de treino (fit): 16.9970 segundos
 
 **Tempo total de execução:** 1731.0 s
 
-| Modelo                 | Score Médio           |
-|------------------------|----------------------|
-| KMeans                 | 0.4433               |
-| DecisionTreeClassifier | 0.6256               |
-| KNN                    | 0.9517               |
-| LinearRegression       | 0.0195               |
-| LogisticRegression     | 0.5575               |
-| RandomForest           | 0.9473               |
-| Ridge                  | 0.0195               |
-| Lasso                  | 0.0194               |
-| NaiveBayes             | 0.5578               |
-| NeuralNetworks         | 0.0303               |
-| SVM                    | 0.6013               |
+| Modelo                 | Score Médio |
+| ---------------------- | ----------- |
+| KMeans                 | 0.4433      |
+| DecisionTreeClassifier | 0.6256      |
+| KNN                    | 0.9517      |
+| LinearRegression       | 0.0195      |
+| LogisticRegression     | 0.5575      |
+| RandomForest           | 0.9473      |
+| Ridge                  | 0.0195      |
+| Lasso                  | 0.0194      |
+| NaiveBayes             | 0.5578      |
+| NeuralNetworks         | 0.0303      |
+| SVM                    | 0.6013      |
 
 ---
 
 ## Resumo dos Melhores Modelos
 
-- **Classificação:**  
-  O melhor modelo para classificação foi o **KNN**, com F1-score de **0.95**, precisão de **0.96** e recall de **0.95**.
+* **Classificação:**
+  Melhor desempenho: **KNN** (F1-score: 0.95, Precisão: 0.96, Recall: 0.95)
 
-- **Regressão:**  
-  O melhor modelo para regressão foi o **Random Forest**, com RMSE de **4.03**, MAE de **0.25** e R² de **0.88**.
+* **Regressão:**
+  Melhor desempenho: **Random Forest (sem PCA)**
+  RMSE: 1.74, MAE: 0.25, R²: 0.97
 
 ---
