@@ -18,7 +18,7 @@ DATASET_CSV_PATH = os.path.join(BASE_DIR, "../dataset/purchased_games_final.csv"
 
 # Carregar os dados
 df = pd.read_csv(DATASET_CSV_PATH)
-df = df.head(500000)
+df = df.head(11258717)
 
 # Remover outliers do target (eur) usando IQR
 Q1 = df['eur'].quantile(0.25)
